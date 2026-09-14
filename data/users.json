@@ -5,15 +5,8 @@
     "full_name": "Nguyễn Văn An",
     "email": "11111111@st.neu.edu.vn",
     "role": "STUDENT",
-    "role_display": "Sinh viên"
-  },
-  {
-    "user_id": "USR_STUDENT_02",
-    "username": "sv_tranthibin",
-    "full_name": "Trần Thị Bin",
-    "email": "22222222@st.neu.edu.vn",
-    "role": "STUDENT",
-    "role_display": "Sinh viên"
+    "role_display": "Sinh viên",
+    "team_id": null
   },
   {
     "user_id": "USR_STAFF_01",
@@ -21,41 +14,43 @@
     "full_name": "Phạm Thanh Tùng",
     "email": "tungpt@neu.edu.vn",
     "role": "LECTURE_STAFF",
-    "role_display": "Cán bộ Giảng đường"
+    "role_display": "Cán bộ Giảng đường",
+    "team_id": null
   },
   {
-    "user_id": "USR_STAFF_02",
-    "username": "cb_lethimaicuc",
-    "full_name": "Lê Thị Cúc",
-    "email": "cucltm@neu.edu.vn",
-    "role": "LECTURE_STAFF",
-    "role_display": "Cán bộ Giảng đường"
-  },
-  {
-    "user_id": "USR_QTTB_LEAD",
-    "username": "lead_qttb",
-    "full_name": "Hoàng Văn Nam",
-    "email": "namhv.qttb@neu.edu.vn",
-    "role": "P_QTTB_LEAD",
-    "role_display": "Trưởng Đội / Quản lý P.QTTB",
-    "team_id": "TEAM_IT_MAIN"
-  },
-  {
-    "user_id": "USR_QTTB_TECH_01",
-    "username": "tech_qttb_01",
+    "user_id": "USR_PSA_TECH",
+    "username": "tech_psa_01",
     "full_name": "Vũ Đình Khiêm",
-    "email": "khiemvd.qttb@neu.edu.vn",
-    "role": "P_QTTB_TECH",
-    "role_display": "Kỹ thuật viên P.QTTB (CNTT)",
-    "team_id": "TEAM_IT_MAIN"
+    "email": "khiemvd.psa@neu.edu.vn",
+    "role": "TECHNICIAN",
+    "role_display": "Kỹ thuật viên PSA (Tòa A1, A2)",
+    "team_id": "T_PSA"
   },
   {
-    "user_id": "USR_QTTB_TECH_02",
-    "username": "tech_qttb_02",
+    "user_id": "USR_QTTB_TECH",
+    "username": "tech_qttb_01",
     "full_name": "Đỗ Mạnh Hùng",
     "email": "hungdm.qttb@neu.edu.vn",
-    "role": "P_QTTB_TECH",
-    "role_display": "Kỹ thuật viên P.QTTB (Điện/Định tử)",
-    "team_id": "TEAM_INFRA_MAIN"
+    "role": "TECHNICIAN",
+    "role_display": "Kỹ thuật viên QTTB (Tòa B, C, D)",
+    "team_id": "T_QTTB"
+  },
+  {
+    "user_id": "USR_IT_TECH",
+    "username": "tech_it_01",
+    "full_name": "Trần Văn Biên",
+    "email": "bien.tech@neu.edu.vn",
+    "role": "TECHNICIAN",
+    "role_display": "Kỹ thuật viên IT",
+    "team_id": "T_IT"
+  },
+  {
+    "user_id": "USR_ADMIN",
+    "username": "admin_sys",
+    "full_name": "Quản trị Hệ thống",
+    "email": "admin@neu.edu.vn",
+    "role": "ADMIN",
+    "role_display": "Helpdesk Admin",
+    "team_id": "T_ADMIN"
   }
 ]
