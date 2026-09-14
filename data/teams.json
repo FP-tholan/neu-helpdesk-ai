@@ -1,20 +1,30 @@
 [
   {
-    "team_id": "TEAM_IT_MAIN",
-    "team_name": "Tổ Kỹ thuật CNTT (P.QTTB)",
+    "team_id": "T_IT",
+    "team_name": "Team IT (Mạng & Phần mềm)",
     "category_focus": "IT",
-    "assigned_locations": ["BLD_A1", "BLD_A2"]
+    "assigned_locations": ["ALL"],
+    "description": "Quản lý sự cố Mạng Wifi, Máy tính phòng Lab, Phần mềm, Tài khoản toàn trường"
   },
   {
-    "team_id": "TEAM_INFRA_MAIN",
-    "team_name": "Tổ Điện nước & Điện lạnh (P.QTTB)",
+    "team_id": "T_PSA",
+    "team_name": "Team PSA (Hành chính A1, A2)",
     "category_focus": "Infrastructure",
-    "assigned_locations": ["BLD_A1", "BLD_A2"]
+    "assigned_locations": ["BLD_A1", "BLD_A2"],
+    "description": "Quản lý sự cố điện, nước, điều hòa, bàn ghế tại các tòa hành chính A1, A2"
   },
   {
-    "team_id": "TEAM_SUB_ALL",
-    "team_name": "Tổ Bảo trì Khu vực B (P.QTTB)",
+    "team_id": "T_QTTB",
+    "team_name": "Team QTTB (Giảng đường B, C, D)",
+    "category_focus": "Equipment",
+    "assigned_locations": ["BLD_B", "BLD_C", "BLD_D"],
+    "description": "Quản lý sự cố máy chiếu, âm thanh, điều hòa tại các tòa giảng đường B, C, D"
+  },
+  {
+    "team_id": "T_ADMIN",
+    "team_name": "Helpdesk Admin (Hàng chờ phân công)",
     "category_focus": "General",
-    "assigned_locations": ["BLD_B"]
+    "assigned_locations": ["UNMAPPED"],
+    "description": "Tiếp nhận các sự cố không xác định hoặc không khớp quy tắc phân công tự động"
   }
 ]
