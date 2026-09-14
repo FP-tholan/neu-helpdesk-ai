@@ -1,3 +1,5 @@
+Owner: [ALL] Primary owner: BA Version: v0
+
 
 ## 1. Business Workflow (Quy trình Hoạt động Tổng thể)
 
