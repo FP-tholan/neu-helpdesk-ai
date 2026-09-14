@@ -1,0 +1,58 @@
+[
+  {
+    "ticket_id": "TCK-20260914-001",
+    "created_by_user_id": "USR_STUDENT_01",
+    "building_id": "BLD_A2",
+    "room_id": "ROOM_A2_101",
+    "category": "IT",
+    "description": "Máy chiếu bị nhòe hình, không kết nối được HDMI",
+    "status": "CLOSED",
+    "priority": "MEDIUM",
+    "assigned_team_id": "TEAM_IT_MAIN",
+    "assigned_technician_id": "USR_QTTB_TECH_01",
+    "created_at": "2026-09-14T08:00:00Z",
+    "updated_at": "2026-09-14T10:30:00Z"
+  },
+  {
+    "ticket_id": "TCK-20260915-002",
+    "created_by_user_id": "USR_STAFF_01",
+    "building_id": "BLD_A2",
+    "room_id": "ROOM_A2_602",
+    "category": "IT",
+    "description": "Dàn máy số 05 đến 08 mất kết nối Mạng LAN",
+    "status": "WAITING_CONFIRM",
+    "priority": "HIGH",
+    "assigned_team_id": "TEAM_IT_MAIN",
+    "assigned_technician_id": "USR_QTTB_TECH_01",
+    "created_at": "2026-09-15T07:30:00Z",
+    "updated_at": "2026-09-15T09:15:00Z"
+  },
+  {
+    "ticket_id": "TCK-20260915-003",
+    "created_by_user_id": "USR_STAFF_02",
+    "building_id": "BLD_A2",
+    "room_id": "ROOM_A2_202",
+    "category": "Infrastructure",
+    "description": "Điều hòa trung tâm chảy nước ở khu vực khán đài B",
+    "status": "IN_PROGRESS",
+    "priority": "HIGH",
+    "assigned_team_id": "TEAM_INFRA_MAIN",
+    "assigned_technician_id": "USR_QTTB_TECH_02",
+    "created_at": "2026-09-15T08:10:00Z",
+    "updated_at": "2026-09-15T08:30:00Z"
+  },
+  {
+    "ticket_id": "TCK-20260915-004",
+    "created_by_user_id": "USR_STUDENT_02",
+    "building_id": "BLD_B",
+    "room_id": "ROOM_B_102",
+    "category": "Infrastructure",
+    "description": "Bóng đèn chớp tắt liên tục",
+    "status": "NEW",
+    "priority": "LOW",
+    "assigned_team_id": "TEAM_SUB_ALL",
+    "assigned_technician_id": null,
+    "created_at": "2026-09-15T09:00:00Z",
+    "updated_at": "2026-09-15T09:00:00Z"
+  }
+]

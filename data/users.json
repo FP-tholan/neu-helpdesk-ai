@@ -1,0 +1,61 @@
+[
+  {
+    "user_id": "USR_STUDENT_01",
+    "username": "sv_nguyenvanan",
+    "full_name": "Nguyễn Văn An",
+    "email": "11111111@st.neu.edu.vn",
+    "role": "STUDENT",
+    "role_display": "Sinh viên"
+  },
+  {
+    "user_id": "USR_STUDENT_02",
+    "username": "sv_tranthibin",
+    "full_name": "Trần Thị Bin",
+    "email": "22222222@st.neu.edu.vn",
+    "role": "STUDENT",
+    "role_display": "Sinh viên"
+  },
+  {
+    "user_id": "USR_STAFF_01",
+    "username": "cb_phamtung",
+    "full_name": "Phạm Thanh Tùng",
+    "email": "tungpt@neu.edu.vn",
+    "role": "LECTURE_STAFF",
+    "role_display": "Cán bộ Giảng đường"
+  },
+  {
+    "user_id": "USR_STAFF_02",
+    "username": "cb_lethimaicuc",
+    "full_name": "Lê Thị Cúc",
+    "email": "cucltm@neu.edu.vn",
+    "role": "LECTURE_STAFF",
+    "role_display": "Cán bộ Giảng đường"
+  },
+  {
+    "user_id": "USR_QTTB_LEAD",
+    "username": "lead_qttb",
+    "full_name": "Hoàng Văn Nam",
+    "email": "namhv.qttb@neu.edu.vn",
+    "role": "P_QTTB_LEAD",
+    "role_display": "Trưởng Đội / Quản lý P.QTTB",
+    "team_id": "TEAM_IT_MAIN"
+  },
+  {
+    "user_id": "USR_QTTB_TECH_01",
+    "username": "tech_qttb_01",
+    "full_name": "Vũ Đình Khiêm",
+    "email": "khiemvd.qttb@neu.edu.vn",
+    "role": "P_QTTB_TECH",
+    "role_display": "Kỹ thuật viên P.QTTB (CNTT)",
+    "team_id": "TEAM_IT_MAIN"
+  },
+  {
+    "user_id": "USR_QTTB_TECH_02",
+    "username": "tech_qttb_02",
+    "full_name": "Đỗ Mạnh Hùng",
+    "email": "hungdm.qttb@neu.edu.vn",
+    "role": "P_QTTB_TECH",
+    "role_display": "Kỹ thuật viên P.QTTB (Điện/Định tử)",
+    "team_id": "TEAM_INFRA_MAIN"
+  }
+]

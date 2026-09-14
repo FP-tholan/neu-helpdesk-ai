@@ -1,0 +1,20 @@
+[
+  {
+    "building_id": "BLD_A1",
+    "building_code": "A1",
+    "building_name": "Tòa nhà A1 (Nhà Trung tâm)",
+    "description": "Khu vực hành chính và giảng đường chính"
+  },
+  {
+    "building_id": "BLD_A2",
+    "building_code": "A2",
+    "building_name": "Tòa nhà A2",
+    "description": "Khu vực giảng đường đa năng và phòng máy"
+  },
+  {
+    "building_id": "BLD_B",
+    "building_code": "B",
+    "building_name": "Tòa nhà B",
+    "description": "Khu vực phòng chức năng và giảng đường"
+  }
+]

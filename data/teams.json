@@ -1,0 +1,20 @@
+[
+  {
+    "team_id": "TEAM_IT_MAIN",
+    "team_name": "Tổ Kỹ thuật CNTT (P.QTTB)",
+    "category_focus": "IT",
+    "assigned_locations": ["BLD_A1", "BLD_A2"]
+  },
+  {
+    "team_id": "TEAM_INFRA_MAIN",
+    "team_name": "Tổ Điện nước & Điện lạnh (P.QTTB)",
+    "category_focus": "Infrastructure",
+    "assigned_locations": ["BLD_A1", "BLD_A2"]
+  },
+  {
+    "team_id": "TEAM_SUB_ALL",
+    "team_name": "Tổ Bảo trì Khu vực B (P.QTTB)",
+    "category_focus": "General",
+    "assigned_locations": ["BLD_B"]
+  }
+]

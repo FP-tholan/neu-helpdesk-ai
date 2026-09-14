@@ -1,0 +1,58 @@
+[
+  {
+    "room_id": "ROOM_A2_101",
+    "building_id": "BLD_A2",
+    "room_code": "A2.101",
+    "room_name": "Giảng đường A2.101",
+    "floor": 1,
+    "room_type": "LECTURE_HALL"
+  },
+  {
+    "room_id": "ROOM_A2_202",
+    "building_id": "BLD_A2",
+    "room_code": "A2.202",
+    "room_name": "Phòng học A2.202",
+    "floor": 2,
+    "room_type": "CLASSROOM"
+  },
+  {
+    "room_id": "ROOM_A1_101",
+    "building_id": "BLD_A1",
+    "room_code": "A1.101",
+    "room_name": "Hội trường A1.101",
+    "floor": 1,
+    "room_type": "AUDITORIUM"
+  },
+  {
+    "room_id": "ROOM_A2_602",
+    "building_id": "BLD_A2",
+    "room_code": "A2.602",
+    "room_name": "Phòng thực hành máy tính A2.602",
+    "floor": 6,
+    "room_type": "COMPUTER_LAB"
+  },
+  {
+    "room_id": "ROOM_A2_304",
+    "building_id": "BLD_A2",
+    "room_code": "A2.304",
+    "room_name": "Phòng học A2.304",
+    "floor": 3,
+    "room_type": "CLASSROOM"
+  },
+  {
+    "room_id": "ROOM_B_102",
+    "building_id": "BLD_B",
+    "room_code": "B.102",
+    "room_name": "Phòng học B.102",
+    "floor": 1,
+    "room_type": "CLASSROOM"
+  },
+  {
+    "room_id": "ROOM_B_401",
+    "building_id": "BLD_B",
+    "room_code": "B.401",
+    "room_name": "Văn phòng B.401",
+    "floor": 4,
+    "room_type": "OFFICE"
+  }
+]
