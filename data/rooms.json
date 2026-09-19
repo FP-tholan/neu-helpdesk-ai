@@ -1,58 +1,86 @@
 [
   {
-    "room_id": "ROOM_A2_101",
+    "id": "R_A1_101",
+    "code": "A1.101",
+    "building_id": "BLD_A1",
+    "name": "Phòng Cán bộ Tổ chức"
+  },
+  {
+    "id": "R_A1_201",
+    "code": "A1.201",
+    "building_id": "BLD_A1",
+    "name": "Phòng Ban Giám hiệu"
+  },
+  {
+    "id": "R_A2_G1",
+    "code": "A2.G1",
     "building_id": "BLD_A2",
-    "room_code": "A2.101",
-    "room_name": "Phòng học A2.101",
-    "floor": 1,
-    "room_type": "CLASSROOM"
+    "name": "Hội trường G1"
   },
   {
-    "room_id": "ROOM_A2_202",
+    "id": "R_A2_203",
+    "code": "A2.203",
     "building_id": "BLD_A2",
-    "room_code": "A2.202",
-    "room_name": "Phòng học A2.202",
-    "floor": 2,
-    "room_type": "CLASSROOM"
+    "name": "Phòng học A2.203"
   },
   {
-    "room_id": "ROOM_A1_G1",
-    "building_id": "BLD_G1",
-    "room_code": "A1.G1",
-    "room_name": "Hội trường A1.G1",
-    "floor": 0,
-    "room_type": "AUDITORIUM"
-  },
-  {
-    "room_id": "ROOM_A2_602",
+    "id": "R_A2_601",
+    "code": "A2.601",
     "building_id": "BLD_A2",
-    "room_code": "A2.602",
-    "room_name": "Phòng thực hành máy tính A2.602",
-    "floor": 6,
-    "room_type": "COMPUTER_LAB"
+    "name": "Phòng Máy tính A2.601"
   },
   {
-    "room_id": "ROOM_A2_304",
+    "id": "R_A2_702",
+    "code": "A2.702",
     "building_id": "BLD_A2",
-    "room_code": "A2.304",
-    "room_name": "Phòng học A2.304",
-    "floor": 3,
-    "room_type": "CLASSROOM"
+    "name": "Phòng Máy tính A2.702"
   },
   {
-    "room_id": "ROOM_B_102",
+    "id": "R_A2_1001",
+    "code": "A2.1001",
+    "building_id": "BLD_A2",
+    "name": "Phòng học A2.1001"
+  },
+  {
+    "id": "R_B_101",
+    "code": "B101",
     "building_id": "BLD_B",
-    "room_code": "B.102",
-    "room_name": "Phòng học B.102",
-    "floor": 1,
-    "room_type": "CLASSROOM"
+    "name": "Phòng học B.101"
   },
   {
-    "room_id": "ROOM_B_401",
+    "id": "R_B_203",
+    "code": "B203",
     "building_id": "BLD_B",
-    "room_code": "B.401",
-    "room_name": "Phòng học B.401",
-    "floor": 4,
-    "room_type": "CLASSROOM"
+    "name": "Phòng học B.203"
+  },
+  {
+    "id": "R_B_402",
+    "code": "B402",
+    "building_id": "BLD_B",
+    "name": "Phòng học B.402"
+  },
+  {
+    "id": "R_C_201",
+    "code": "C201",
+    "building_id": "BLD_C",
+    "name": "Phòng học C.201"
+  },
+  {
+    "id": "R_C_304",
+    "code": "C304",
+    "building_id": "BLD_C",
+    "name": "Phòng học C.304"
+  },
+  {
+    "id": "R_D_102",
+    "code": "D102",
+    "building_id": "BLD_D",
+    "name": "Phòng học D.102"
+  },
+  {
+    "id": "R_D_401",
+    "code": "D401",
+    "building_id": "BLD_D",
+    "name": "Phòng học D.401"
   }
 ]

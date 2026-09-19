@@ -1,56 +1,82 @@
 [
   {
-    "user_id": "USR_STUDENT_01",
-    "username": "sv_nguyenvanan",
-    "full_name": "Nguyễn Văn An",
-    "email": "11111111@st.neu.edu.vn",
-    "role": "STUDENT",
-    "role_display": "Sinh viên",
+    "id": "U001",
+    "username": "sv_nhuthihang",
+    "name": "Nhữ Thị Hằng (Sinh viên)",
+    "email": "11245379@st.neu.edu.vn",
+    "role": "student",
     "team_id": null
   },
   {
-    "user_id": "USR_STAFF_01",
+    "id": "U002",
+    "username": "sv_tranphuongthao",
+    "name": "Trần Phương Thảo (Sinh viên)",
+    "email": "11245380@st.neu.edu.vn",
+    "role": "student",
+    "team_id": null
+  },
+  {
+    "id": "U003",
     "username": "cb_phamtung",
-    "full_name": "Phạm Thanh Tùng",
+    "name": "Phạm Thanh Tùng (Cán bộ A1)",
     "email": "tungpt@neu.edu.vn",
-    "role": "LECTURE_STAFF",
-    "role_display": "Cán bộ Giảng đường",
+    "role": "student",
     "team_id": null
   },
   {
-    "user_id": "USR_PSA_TECH",
-    "username": "tech_psa_01",
-    "full_name": "Vũ Đình Khiêm",
-    "email": "khiemvd.psa@neu.edu.vn",
-    "role": "TECHNICIAN",
-    "role_display": "Kỹ thuật viên PSA (Tòa A1, A2)",
-    "team_id": "T_PSA"
+    "id": "U004",
+    "username": "gv_lehoang",
+    "name": "Lê Vũ Hoàng (Giảng viên)",
+    "email": "hoanglv@neu.edu.vn",
+    "role": "student",
+    "team_id": null
   },
   {
-    "user_id": "USR_QTTB_TECH",
-    "username": "tech_qttb_01",
-    "full_name": "Đỗ Mạnh Hùng",
-    "email": "hungdm.qttb@neu.edu.vn",
-    "role": "TECHNICIAN",
-    "role_display": "Kỹ thuật viên QTTB (Tòa B, C, D)",
-    "team_id": "T_QTTB"
-  },
-  {
-    "user_id": "USR_IT_TECH",
+    "id": "U101",
     "username": "tech_it_01",
-    "full_name": "Trần Văn Biên",
-    "email": "bien.tech@neu.edu.vn",
-    "role": "TECHNICIAN",
-    "role_display": "Kỹ thuật viên IT",
+    "name": "Trần Tuấn Anh (KT Máy tính & Mạng)",
+    "email": "anhtt@neu.edu.vn",
+    "role": "technician",
     "team_id": "T_IT"
   },
   {
-    "user_id": "USR_ADMIN",
+    "id": "U102",
+    "username": "tech_it_02",
+    "name": "Nguyễn Duy Minh (KT Hệ thống)",
+    "email": "minhnd@neu.edu.vn",
+    "role": "technician",
+    "team_id": "T_IT"
+  },
+  {
+    "id": "U103",
+    "username": "tech_psa_01",
+    "name": "Vũ Đình Khiêm (KT Tòa A1-A2)",
+    "email": "khiemvd@neu.edu.vn",
+    "role": "technician",
+    "team_id": "T_PSA"
+  },
+  {
+    "id": "U104",
+    "username": "tech_qttb_01",
+    "name": "Đỗ Mạnh Hùng (KT Tòa B-C-D)",
+    "email": "hungdm@neu.edu.vn",
+    "role": "technician",
+    "team_id": "T_QTTB"
+  },
+  {
+    "id": "U105",
+    "username": "tech_qttb_02",
+    "name": "Phạm Quốc Bảo (KT Tòa B-C-D)",
+    "email": "baopq@neu.edu.vn",
+    "role": "technician",
+    "team_id": "T_QTTB"
+  },
+  {
+    "id": "U901",
     "username": "admin_sys",
-    "full_name": "Quản trị Hệ thống",
-    "email": "admin@neu.edu.vn",
-    "role": "ADMIN",
-    "role_display": "Helpdesk Admin",
+    "name": "Nguyễn Minh Khoa (Quản trị viên)",
+    "email": "khoanm@neu.edu.vn",
+    "role": "admin",
     "team_id": "T_ADMIN"
   }
 ]

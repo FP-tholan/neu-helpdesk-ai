@@ -1,30 +1,26 @@
 [
   {
-    "team_id": "T_IT",
-    "team_name": "Team IT (Mạng & Phần mềm)",
-    "category_focus": "IT",
-    "assigned_locations": ["ALL"],
-    "description": "Quản lý sự cố Mạng Wifi, Máy tính phòng Lab, Phần mềm, Tài khoản toàn trường"
+    "id": "T_IT",
+    "code": "IT",
+    "name": "Tổ Kỹ thuật CNTT & Máy tính",
+    "description": "Phụ trách mạng Wifi toàn trường, máy tính phòng lab tầng 6-7 A2 và hệ thống phần mềm"
   },
   {
-    "team_id": "T_PSA",
-    "team_name": "Team PSA (Hành chính A1, A2)",
-    "category_focus": "Infrastructure",
-    "assigned_locations": ["BLD_A1", "BLD_A2"],
-    "description": "Quản lý sự cố điện, nước, điều hòa, bàn ghế tại các tòa hành chính A1, A2"
+    "id": "T_PSA",
+    "code": "PSA",
+    "name": "Đội Quản lý Tòa nhà A1 & A2",
+    "description": "Phụ trách điện, nước, điều hòa, âm thanh tại 16 phòng hành chính A1 và 10 tầng giảng đường A2"
   },
   {
-    "team_id": "T_QTTB",
-    "team_name": "Team QTTB (Giảng đường B, C, D)",
-    "category_focus": "Equipment",
-    "assigned_locations": ["BLD_B", "BLD_C", "BLD_D"],
-    "description": "Quản lý sự cố máy chiếu, âm thanh, điều hòa tại các tòa giảng đường B, C, D"
+    "id": "T_QTTB",
+    "code": "QTTB",
+    "name": "Đội Quản lý Giảng đường B-C-D",
+    "description": "Phụ trách cơ sở vật chất, máy chiếu, thiết bị dạy học tại các tòa nhà 4 tầng B, C, D"
   },
   {
-    "team_id": "T_ADMIN",
-    "team_name": "Helpdesk Admin (Hàng chờ phân công)",
-    "category_focus": "General",
-    "assigned_locations": ["UNMAPPED"],
-    "description": "Tiếp nhận các sự cố không xác định hoặc không khớp quy tắc phân công tự động"
+    "id": "T_ADMIN",
+    "code": "ADMIN",
+    "name": "Helpdesk Admin",
+    "description": "Phụ trách điều phối sự cố ngoại lệ hoặc chưa khớp quy tắc tự động"
   }
 ]

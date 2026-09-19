@@ -1,20 +1,28 @@
 [
   {
-    "building_id": "BLD_A1",
-    "building_code": "A1",
-    "building_name": "Tòa nhà A1",
-    "description": "Khu vực hành chính"
+    "id": "BLD_A1",
+    "code": "A1",
+    "name": "Tòa nhà trung tâm A1 (Hành chính)"
   },
   {
-    "building_id": "BLD_A2",
-    "building_code": "A2",
-    "building_name": "Tòa nhà A2",
-    "description": "Khu vực giảng đường đa năng và phòng máy"
+    "id": "BLD_A2",
+    "code": "A2",
+    "name": "Tòa nhà Giảng đường A2"
   },
   {
-    "building_id": "BLD_B",
-    "building_code": "B",
-    "building_name": "Tòa nhà B",
-    "description": "Khu vực phòng chức năng và giảng đường"
+    "id": "BLD_B",
+    "code": "B",
+    "name": "Tòa nhà Giảng đường B"
+  },
+  {
+    "id": "BLD_C",
+    "code": "C",
+    "name": "Tòa nhà Giảng đường C"
+  },
+  {
+    "id": "BLD_D",
+    "code": "D",
+    "name": "Tòa nhà Giảng đường D"
   }
+ 
 ]
