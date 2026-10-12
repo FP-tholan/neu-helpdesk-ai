@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard - NEU HelpDesk AI</title>
+  <link rel="stylesheet" href="user_dashboard.css">
+</head>
+
+<body>
+
+  <!-- =========================================================
+       SIDEBAR
+  ========================================================== -->
+
+  <aside class="sidebar">
+
+    <div class="sidebar-header">
+
+      <img
+        src="Bieu-tuong-1-1-scaled.webp"
+        alt="NEU Logo"
+        class="sidebar-logo"
+      >
+
+      <div class="sidebar-brand">
+        <h2>NEU HelpDesk</h2>
+        <span>Hệ thống hỗ trợ AI</span>
+      </div>
+
+    </div>
+
+
+    <nav class="sidebar-nav">
+
+      <a href="#" class="nav-item active">
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+
+        <span>Tổng quan</span>
+
+      </a>
+
+
+      <a
+        href="#"
+        class="nav-item"
+        id="btnSidebarNewTicket"
+      >
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="12" y1="18" x2="12" y2="12"></line>
+          <line x1="9" y1="15" x2="15" y2="15"></line>
+        </svg>
+
+        <span>Tạo Ticket Mới</span>
+
+      </a>
+
+
+      <a
+        href="#"
+        class="nav-item"
+        id="btnSidebarChatAi"
+      >
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+
+        <span>AI Assistant</span>
+
+      </a>
+
+    </nav>
+
+
+    <div class="sidebar-footer">
+
+      <button
+        id="btnLogout"
+        class="btn-logout"
+      >
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+
+        <span>Đăng xuất</span>
+
+      </button>
+
+    </div>
+
+  </aside>
+
+
+
+  <!-- =========================================================
+       MAIN CONTENT
+  ========================================================== -->
+
+  <main class="main-content">
+
+
+    <!-- =======================================================
+         HEADER
+    ======================================================== -->
+
+    <header class="top-header">
+
+      <div class="header-left">
+
+        <h1>Bảng điều khiển yêu cầu</h1>
+
+        <p>
+          Theo dõi và quản lý các yêu cầu hỗ trợ kỹ thuật của bạn
+        </p>
+
+      </div>
+
+
+      <div class="user-profile">
+
+        <div
+          class="user-avatar"
+          id="userAvatar"
+        >
+          SV
+        </div>
+
+        <div class="user-meta">
+
+          <strong id="userName">
+            Nguyễn Văn An
+          </strong>
+
+          <span id="userMetaInfo">
+            Đang tải thông tin...
+          </span>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+
+    <!-- =======================================================
+         QUICK ACTION
+    ======================================================== -->
+
+    <section class="action-banner">
+
+      <div class="action-text">
+
+        <h3>
+          Gặp sự cố về thiết bị, mạng hoặc phần mềm?
+        </h3>
+
+        <p>
+          Gửi yêu cầu hỗ trợ ngay hoặc nhận giải đáp tức thì từ AI Assistant.
+        </p>
+
+      </div>
+
+
+      <div class="action-buttons">
+
+        <button
+          class="btn btn-primary"
+          id="btnNewTicket"
+        >
+
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+
+          Tạo Ticket Mới
+
+        </button>
+
+
+        <button
+          class="btn btn-secondary"
+          id="btnChatAi"
+        >
+
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+
+          Chat với AI Assistant
+
+        </button>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =======================================================
+         TICKET STATS
+    ======================================================== -->
+
+    <section class="stats-grid">
+
+      <div class="stat-card stat-open">
+
+        <div class="stat-icon">
+          📥
+        </div>
+
+        <div class="stat-data">
+
+          <span class="stat-label">
+            Chờ tiếp nhận (Open)
+          </span>
+
+          <strong
+            class="stat-number"
+            id="statOpen"
+          >
+            0
+          </strong>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="stat-card stat-progress">
+
+        <div class="stat-icon">
+          ⚙️
+        </div>
+
+        <div class="stat-data">
+
+          <span class="stat-label">
+            Đang xử lý (In Progress)
+          </span>
+
+          <strong
+            class="stat-number"
+            id="statProgress"
+          >
+            0
+          </strong>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="stat-card stat-resolved">
+
+        <div class="stat-icon">
+          ✨
+        </div>
+
+        <div class="stat-data">
+
+          <span class="stat-label">
+            Đã xử lý (Resolved)
+          </span>
+
+          <strong
+            class="stat-number"
+            id="statResolved"
+          >
+            0
+          </strong>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="stat-card stat-closed">
+
+        <div class="stat-icon">
+          ✅
+        </div>
+
+        <div class="stat-data">
+
+          <span class="stat-label">
+            Đã đóng (Closed)
+          </span>
+
+          <strong
+            class="stat-number"
+            id="statClosed"
+          >
+            0
+          </strong>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =======================================================
+         RECENT TICKETS
+    ======================================================== -->
+
+    <section class="table-section">
+
+      <div class="table-header">
+
+        <h2>
+          Danh sách Ticket gần đây
+        </h2>
+
+        <span class="table-subtitle">
+          Nhấp vào từng dòng để xem chi tiết tiến độ
+        </span>
+
+      </div>
+
+
+      <div class="table-wrapper">
+
+        <table class="tickets-table">
+
+          <thead>
+
+            <tr>
+
+              <th>Mã Ticket</th>
+
+              <th>Tiêu đề sự cố</th>
+
+              <th>Danh mục</th>
+
+              <th>Trạng thái</th>
+
+              <th>Thời gian tạo</th>
+
+              <th>Thao tác</th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody id="ticketsTableBody">
+
+            <!--
+              Dữ liệu được render
+              từ user_dashboard.js
+            -->
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+
+  <!-- =========================================================
+       CREATE TICKET MODAL
+  ========================================================== -->
+
+  <div
+    class="modal-backdrop"
+    id="createTicketModal"
+  >
+
+    <div class="modal-card modal-create-card">
+
+
+      <!-- Modal Header -->
+
+      <div class="modal-header">
+
+        <div>
+
+          <h2>
+            Tạo yêu cầu báo lỗi / Sự cố mới
+          </h2>
+
+          <span class="modal-ticket-id">
+            Hệ thống sẽ tự động điều phối tới đội kỹ thuật liên quan
+          </span>
+
+        </div>
+
+
+        <button
+          class="modal-close"
+          id="btnCreateModalClose"
+          type="button"
+        >
+          &times;
+        </button>
+
+      </div>
+
+
+
+      <!-- Create Ticket Form -->
+
+      <form id="createTicketForm">
+
+        <div class="modal-body">
+
+
+          <!-- =================================================
+               TITLE
+          ================================================== -->
+
+          <div class="form-group">
+
+            <label for="newTitle">
+              Tiêu đề sự cố (*):
+            </label>
+
+            <input
+              type="text"
+              id="newTitle"
+              placeholder="VD: Máy chiếu phòng B102 không lên nguồn..."
+              required
+            >
+
+          </div>
+
+
+
+          <!-- =================================================
+               BUILDING + ROOM
+          ================================================== -->
+
+          <div class="form-row-2">
+
+
+            <!-- Building -->
+
+            <div class="form-group">
+
+              <label for="newBuilding">
+                Tòa nhà (*):
+              </label>
+
+              <select
+                id="newBuilding"
+                class="select-control"
+                required
+              >
+
+                <option value="">
+                  -- Chọn tòa nhà --
+                </option>
+
+                <option value="Tòa nhà A1">
+                  Tòa nhà A1
+                </option>
+
+                <option value="Tòa nhà A2">
+                  Tòa nhà A2
+                </option>
+
+                <option value="Tòa nhà B">
+                  Tòa nhà B
+                </option>
+
+              </select>
+
+            </div>
+
+
+
+            <!-- Room -->
+
+            <div class="form-group">
+
+              <label for="newRoom">
+                Phòng học / Vị trí cụ thể (*):
+              </label>
+
+              <select
+                id="newRoom"
+                class="select-control"
+                required
+              >
+
+                <option value="">
+                  -- Chọn phòng --
+                </option>
+
+                <option value="A2.101">
+                  A2.101
+                </option>
+
+                <option value="A2.202">
+                  A2.202
+                </option>
+
+                <option value="A2.602">
+                  A2.602
+                </option>
+
+                <option value="A2.304">
+                  A2.304
+                </option>
+
+                <option value="B.102">
+                  B.102
+                </option>
+
+                <option value="B.401">
+                  B.401
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- =================================================
+               CATEGORY + PRIORITY
+          ================================================== -->
+
+          <div class="form-row-2">
+
+
+            <!-- Category -->
+
+            <div class="form-group">
+
+              <label for="newCategory">
+                Danh mục sự cố (*):
+              </label>
+
+              <select
+                id="newCategory"
+                class="select-control"
+                required
+              >
+
+                <option value="Thiết bị giảng dạy / Máy chiếu">
+                  Thiết bị giảng dạy / Máy chiếu (T_QTTB)
+                </option>
+
+                <option value="Mạng & Hạ tầng CNTT">
+                  Mạng & Hạ tầng CNTT (T_IT)
+                </option>
+
+                <option value="Âm thanh & Ánh sáng">
+                  Âm thanh & Ánh sáng (T_PSA)
+                </option>
+
+                <option value="Điện lạnh & CSVC">
+                  Điện lạnh & CSVC (T_QTTB)
+                </option>
+
+              </select>
+
+            </div>
+
+
+
+            <!-- Priority -->
+
+            <div class="form-group">
+
+              <label for="newPriority">
+                Mức độ ưu tiên (*):
+              </label>
+
+              <select
+                id="newPriority"
+                class="select-control"
+                required
+              >
+
+                <option value="medium">
+                  Trung bình (Medium)
+                </option>
+
+                <option value="low">
+                  Thấp (Low)
+                </option>
+
+                <option value="high">
+                  Cao (High)
+                </option>
+
+                <option value="critical">
+                  Khẩn cấp (Critical)
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- =================================================
+               DESCRIPTION
+          ================================================== -->
+
+          <div class="form-group">
+
+            <label for="newDescription">
+              Mô tả chi tiết sự cố (*):
+            </label>
+
+            <textarea
+              id="newDescription"
+              rows="4"
+              placeholder="Mô tả chi tiết hiện tượng gặp phải để kỹ thuật viên chuẩn bị dụng cụ sửa chữa..."
+              required
+            ></textarea>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- Modal Footer -->
+
+        <div class="modal-footer">
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            id="btnCancelCreate"
+          >
+            Hủy bỏ
+          </button>
+
+
+          <button
+            type="submit"
+            class="btn btn-primary-submit"
+          >
+            Gửi yêu cầu hỗ trợ
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- =========================================================
+       TICKET DETAIL MODAL
+  ========================================================== -->
+
+  <div
+    class="modal-backdrop"
+    id="ticketModal"
+  >
+
+    <div class="modal-card">
+
+
+      <!-- Modal Header -->
+
+      <div class="modal-header">
+
+        <div>
+
+          <span
+            class="badge"
+            id="modalTicketPriority"
+          >
+            High
+          </span>
+
+          <h2 id="modalTicketTitle">
+            Tiêu đề sự cố
+          </h2>
+
+          <span
+            class="modal-ticket-id"
+            id="modalTicketId"
+          >
+            #TCK-000
+          </span>
+
+        </div>
+
+
+        <button
+          class="modal-close"
+          id="btnModalClose"
+          type="button"
+        >
+          &times;
+        </button>
+
+      </div>
+
+
+
+      <!-- Modal Body -->
+
+      <div class="modal-body">
+
+        <div class="modal-grid">
+
+
+          <!-- LEFT -->
+
+          <div class="modal-col-left">
+
+
+            <div class="info-group">
+
+              <label>
+                Địa điểm:
+              </label>
+
+              <span id="modalLocation">
+                Chưa có thông tin
+              </span>
+
+            </div>
+
+
+
+            <div class="info-group">
+
+              <label>
+                Danh mục sự cố:
+              </label>
+
+              <span id="modalCategory">
+                Chưa có thông tin
+              </span>
+
+            </div>
+
+
+
+            <div class="info-group">
+
+              <label>
+                Đội kỹ thuật phụ trách:
+              </label>
+
+              <span id="modalAssignedTeam">
+                Chưa phân công
+              </span>
+
+            </div>
+
+
+
+            <div class="info-group">
+
+              <label>
+                Kỹ thuật viên:
+              </label>
+
+              <span id="modalAssignedTech">
+                Chưa phân công
+              </span>
+
+            </div>
+
+
+
+            <div class="info-group full-width">
+
+              <label>
+                Mô tả chi tiết:
+              </label>
+
+              <p
+                id="modalDescription"
+                class="desc-box"
+              >
+                Mô tả sự cố...
+              </p>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- RIGHT -->
+
+          <div class="modal-col-right">
+
+            <h3>
+              Lịch sử xử lý sự cố
+            </h3>
+
+            <div
+              class="timeline"
+              id="modalTimeline"
+            >
+
+              <!--
+                Timeline được render
+                từ JavaScript
+              -->
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Modal Footer -->
+
+      <div
+        class="modal-footer"
+        id="modalFooterActions"
+      >
+
+        <!--
+          Nút hành động theo trạng thái ticket
+        -->
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- =========================================================
+       JAVASCRIPT
+  ========================================================== -->
+
+  <script src="user_dashboard.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Management & Dispatch - NEU HelpDesk Admin</title>
+  <link rel="stylesheet" href="management_dashboard.css">
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="Bieu-tuong-1-1-scaled.webp" alt="NEU Logo" class="sidebar-logo">
+      <div class="sidebar-brand">
+        <h2>IT Team Hub</h2>
+        <span class="badge-admin">Admin Portal</span>
+      </div>
+    </div>
+
+    <!-- Dropdown chuyển đổi Team phụ trách -->
+    <div class="team-selector-box">
+      <label>Đội kỹ thuật:</label>
+      <select id="teamSelector" class="team-dropdown" disabled>
+        <option value="T_QTTB">T_QTTB (Quản trị thiết bị)</option>
+        <option value="T_IT">T_IT (Trung tâm CNTT / Mạng)</option>
+        <option value="T_PSA">T_PSA (Âm thanh & Ánh sáng)</option>
+      </select>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">CHỨC NĂNG CHÍNH</div>
+      <a href="#" class="nav-item active" id="navDashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        <span>Bảng điều khiển</span>
+      </a>
+      <a href="#" class="nav-item" id="navTicketsList">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        <span>Danh sách sự cố</span>
+      </a>
+      <a href="#" class="nav-item" id="navDispatch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        <span>Điều phối công việc</span>
+      </a>
+      <a href="#" class="nav-item" id="navReports">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        <span>Báo cáo hiệu suất</span>
+      </a>
+
+      <div class="nav-section-title" style="margin-top:16px;">HỆ THỐNG</div>
+      <a href="#" class="nav-item" id="navSettings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <span>Cài đặt</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button id="btnLogout" class="btn-logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <span>Đăng xuất</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <div class="title-with-badge">
+          <h1 id="pageMainTitle">Quản lý Đội ngũ & Điều phối</h1>
+          <span class="team-badge" id="currentTeamBadge">T_QTTB</span>
+        </div>
+        <p id="pageMainDesc">Giám sát ca trực, hiệu suất KTV và điều phối sự cố CSVC & CNTT</p>
+      </div>
+
+      <div class="admin-profile">
+        <div class="admin-avatar">QL</div>
+        <div class="admin-meta">
+          <strong id="adminName">Phạm Minh Đức</strong>
+          <span id="adminMeta">Trưởng nhóm kỹ thuật</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Header & KPIs Cards - Đúng thiết kế Visily (Tiêu đề, số lớn, badge icon nhỏ gọn góc phải, dòng trend xanh) -->
+    <section class="stats-grid" id="mainKpisSection">
+      <!-- Card 1: Tổng KTV -->
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-info-left">
+            <span class="stat-label">Tổng KTV</span>
+            <strong class="stat-number" id="statTotalTechs">12</strong>
+          </div>
+          <div class="stat-icon-badge badge-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          </div>
+        </div>
+        <div class="stat-trend">
+          <span class="trend-icon">↗</span>
+          <span class="trend-text">+2 tháng này</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Đang trực tuyến -->
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-info-left">
+            <span class="stat-label">Đang trực tuyến</span>
+            <strong class="stat-number" id="statActiveTechs">08</strong>
+          </div>
+          <div class="stat-icon-badge badge-green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          </div>
+        </div>
+        <div class="stat-trend">
+          <span class="trend-icon">↗</span>
+          <span class="trend-text">66% tổng nhân lực</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Vé chờ phân công -->
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-info-left">
+            <span class="stat-label">Vé chờ phân công</span>
+            <strong class="stat-number" id="statUnassignedTickets">05</strong>
+          </div>
+          <div class="stat-icon-badge badge-red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </div>
+        </div>
+        <div class="stat-trend">
+          <span class="trend-icon">↗</span>
+          <span class="trend-text">Giảm 12% so với tuần trước</span>
+        </div>
+      </div>
+
+      <!-- Card 4: Hiệu suất trung bình -->
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-info-left">
+            <span class="stat-label">Hiệu suất trung bình</span>
+            <strong class="stat-number" id="statAvgRating">4.7/5</strong>
+          </div>
+          <div class="stat-icon-badge badge-purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          </div>
+        </div>
+        <div class="stat-trend">
+          <span class="trend-icon">↗</span>
+          <span class="trend-text">Đánh giá từ giảng viên</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sub Tabs & Actions Bar -->
+    <section class="section-tabs-bar" id="subTabsBar">
+      <div class="sub-tabs">
+        <button class="sub-tab-btn active" data-tab="techs_list">Danh sách kỹ thuật viên</button>
+        <button class="sub-tab-btn" data-tab="dispatch_view">Điều phối công việc (Dispatch)</button>
+        <button class="sub-tab-btn" data-tab="team_tickets">Tất cả ticket của Đội</button>
+      </div>
+      <div class="tab-actions">
+        <button class="btn btn-primary" id="btnAddMember">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Thêm thành viên
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW 1: BẢNG ĐIỀU KHIỂN & KTV (Techs List) -->
+    <section class="tab-content active" id="tabContentTechs">
+      <div class="table-section">
+        <div class="table-header-flex">
+          <div>
+            <h2>Kỹ thuật viên thuộc Đội ngũ</h2>
+            <span class="table-subtitle">Quản lý trạng thái ca trực và tải công việc của từng thành viên</span>
+          </div>
+          <div class="search-box-wrapper" style="max-width:320px;">
+            <span class="search-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </span>
+            <input type="text" id="searchTechInput" placeholder="Tìm theo tên, mã hoặc SĐT...">
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mã KTV</th>
+                <th>Kỹ thuật viên</th>
+                <th>Email / SĐT</th>
+                <th>Trạng thái ca trực</th>
+                <th>Khối lượng công việc (Workload)</th>
+                <th>Đánh giá</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="techsTableBody">
+              <!-- Render từ JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: ĐIỀU PHỐI CÔNG VIỆC (Dispatch View) -->
+    <section class="tab-content" id="tabContentDispatch">
+      <div class="dispatch-grid">
+        <div class="dispatch-col">
+          <div class="col-header">
+            <h3>Sự cố chưa phân công (Unassigned Queue)</h3>
+            <span class="badge badge-warning" id="dispatchUnassignedCount">0 ticket</span>
+          </div>
+          <div class="unassigned-list" id="unassignedTicketsList">
+            <!-- Render từ JS -->
+          </div>
+        </div>
+
+        <div class="dispatch-col">
+          <div class="col-header">
+            <h3>Kỹ thuật viên sẵn sàng tiếp nhận</h3>
+            <span class="badge badge-success">Đang trong ca trực</span>
+          </div>
+          <div class="available-techs-list" id="availableTechsList">
+            <!-- Render từ JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: TẤT CẢ TICKET CỦA ĐỘI -->
+    <section class="tab-content" id="tabContentTickets">
+      <div class="table-section">
+        <div class="table-header-flex">
+          <div>
+            <h2>Tất cả sự cố thuộc Team phụ trách</h2>
+            <span class="table-subtitle">Xem toàn bộ tiến độ xử lý và lịch sử sửa chữa</span>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mã Ticket</th>
+                <th>Tiêu đề sự cố</th>
+                <th>Vị trí</th>
+                <th>Mức ưu tiên</th>
+                <th>Trạng thái</th>
+                <th>KTV Phụ trách</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody id="teamTicketsTableBody">
+              <!-- Render từ JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: BÁO CÁO HIỆU SUẤT (Reports View) -->
+    <section class="tab-content" id="tabContentReports">
+      <div class="table-section" style="margin-bottom:24px;">
+        <h2 style="margin-bottom:6px;">Chỉ số Tuân thủ Thời gian Xử lý (SLA Compliance)</h2>
+        <p style="font-size:13px; color:#64748b; margin-bottom:18px;">Báo cáo tỷ lệ hoàn thành sự cố đúng hạn của Đội ngũ</p>
+        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:0;">
+          <div class="stat-card">
+            <span class="stat-label">Thời gian phản hồi TB</span>
+            <strong class="stat-number">12 Phút</strong>
+            <div class="stat-trend" style="margin-top:6px;"><span class="trend-icon">↗</span> <span class="trend-text">Nhanh hơn 3 phút so với mục tiêu</span></div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Tỷ lệ đạt chuẩn SLA</span>
+            <strong class="stat-number">96.5%</strong>
+            <div class="stat-trend" style="margin-top:6px;"><span class="trend-icon">↗</span> <span class="trend-text">+1.2% so với tháng trước</span></div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Sự cố khẩn xử lý ngay</span>
+            <strong class="stat-number">100%</strong>
+            <div class="stat-trend" style="margin-top:6px;"><span class="trend-icon">↗</span> <span class="trend-text">Đạt chỉ tiêu cam kết</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: CÀI ĐẶT HỆ THỐNG (Settings View) -->
+    <section class="tab-content" id="tabContentSettings">
+      <div class="table-section">
+        <h2 style="margin-bottom:6px;">Cấu hình Điều phối & Phân quyền Đội</h2>
+        <p style="font-size:13px; color:#64748b; margin-bottom:20px;">Tùy chỉnh thông số vận hành của HelpDesk Admin</p>
+        <div style="max-width:550px;">
+          <div class="form-group">
+            <label>Tự động điều phối AI (Auto-dispatch):</label>
+            <select class="form-control">
+              <option value="1">Bật (Tự động gán cho KTV có Workload thấp nhất)</option>
+              <option value="0">Tắt (Trưởng nhóm tự gán thủ công)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Giới hạn tải tối đa cho mỗi KTV (Max Workload):</label>
+            <input type="number" class="form-control" value="5" min="1" max="10">
+          </div>
+          <button class="btn btn-primary" onclick="alert('Đã lưu cấu hình hệ thống thành công!');">Lưu thiết lập</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Phân công nhanh -->
+  <div class="modal-backdrop" id="assignModal">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <div>
+          <h2>Điều phối / Phân công sự cố</h2>
+          <span class="modal-ticket-id" id="assignModalTicketId">#TCK-000</span>
+        </div>
+        <button class="modal-close" id="btnAssignModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px; margin-bottom:14px; color:#475569;" id="assignModalTicketTitle">Tiêu đề sự cố</p>
+        <div class="form-group">
+          <label>Chọn Kỹ thuật viên phụ trách (*):</label>
+          <select id="assignTechSelect" class="form-control">
+            <!-- Render KTV từ JS -->
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnCancelAssign">Hủy</button>
+        <button class="btn btn-primary-action" id="btnConfirmAssign">Xác nhận phân công</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Thêm thành viên mới -->
+  <div class="modal-backdrop" id="addMemberModal">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <div>
+          <h2>Thêm Kỹ thuật viên mới</h2>
+          <span class="modal-ticket-id">Thêm vào Đội kỹ thuật hiện tại</span>
+        </div>
+        <button class="modal-close" id="btnAddMemberClose">&times;</button>
+      </div>
+      <form id="addMemberForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Họ và tên (*):</label>
+            <input type="text" id="newTechName" class="form-control" placeholder="VD: Nguyễn Văn Minh" required>
+          </div>
+          <div class="form-group">
+            <label>Email (*):</label>
+            <input type="email" id="newTechEmail" class="form-control" placeholder="minhnv@neu.edu.vn hoặc gmail.com" required>
+          </div>
+          <div class="form-group">
+            <label>Số điện thoại (*):</label>
+            <input type="text" id="newTechPhone" class="form-control" placeholder="VD: 0988 123 456" required>
+          </div>
+          <div class="form-group">
+            <label>Vai trò trong Đội:</label>
+            <select id="newTechRole" class="form-control">
+              <option value="Kỹ thuật viên chính">Kỹ thuật viên chính</option>
+              <option value="Hỗ trợ kỹ thuật (Support)">Hỗ trợ kỹ thuật (Support)</option>
+              <option value="Trưởng nhóm (Team Lead)">Trưởng nhóm (Team Lead)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelAddMember">Hủy</button>
+          <button type="submit" class="btn btn-primary-action">Lưu thành viên</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="management_dashboard.js"></script>
+</body>
+</html>
