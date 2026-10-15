@@ -52,6 +52,8 @@ def login():
             }), 401
 
         session["user_id"] = user.id
+        session["role"] = user.role
+        session["team_id"] = user.team_id
 
         return jsonify({
             "success": True,

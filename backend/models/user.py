@@ -4,14 +4,27 @@ from sqlalchemy.orm import Mapped, mapped_column
 from database.db import Base
 
 
+from sqlalchemy import Boolean, ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column
+
+from database.db import Base
+
+
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[str] = mapped_column(String(50), primary_key=True)
+
     username: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
+
     role: Mapped[str] = mapped_column(String(50), nullable=False)
-    team_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+
+    team_id: Mapped[str | None] = mapped_column(
+        String(50), ForeignKey("teams.id"), nullable=True
+    )
+
     is_locked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_on_duty: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

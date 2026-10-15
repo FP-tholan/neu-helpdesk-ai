@@ -10,7 +10,7 @@
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-header">
-      <img src="Bieu-tuong-1-1-scaled.webp" alt="NEU Logo" class="sidebar-logo">
+      <img src="../assets/Bieu-tuong-1-1-scaled.webp" alt="NEU Logo" class="sidebar-logo">
       <div class="sidebar-brand">
         <h2>NEU HelpDesk</h2>
         <span class="badge-tech">Kỹ thuật viên</span>
@@ -76,8 +76,8 @@
       <div class="stat-card stat-resolved">
         <div class="stat-icon">✨</div>
         <div class="stat-data">
-          <span class="stat-label">Đã sửa xong (Resolved)</span>
-          <strong class="stat-number" id="statResolved">0</strong>
+          <span class="stat-label">Chờ nghiệm thu</span>
+          <strong class="stat-number" id="statWaitingConfirm">0</strong>
         </div>
       </div>
     </section>
@@ -95,6 +95,8 @@
           <option value="all">Tất cả trạng thái</option>
           <option value="assigned">Chờ tiếp nhận (Assigned)</option>
           <option value="in_progress">Đang xử lý (In Progress)</option>
+          <option value="re_process">Cần xử lý lại (Re-process)</option>
+          <option value="waiting_confirm">Chờ nghiệm thu (Waiting Confirm)</option>
           <option value="resolved">Đã sửa xong (Resolved)</option>
         </select>
         <select id="filterPriority" class="select-control">

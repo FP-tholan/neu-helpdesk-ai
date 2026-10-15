@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - NEU HelpDesk</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    body {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #001f44 0%, #003366 100%);
+      color: #001f44;
+    }
+    .card {
+      background: #fff; padding: 40px 50px; border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3); max-width: 520px; width: 100%;
+      text-align: center;
+    }
+    .card h1 { font-size: 22px; margin-bottom: 12px; }
+    .card p { font-size: 14px; color: #64748b; margin-bottom: 22px; line-height: 1.6; }
+    .info { background: #f1f5f9; padding: 14px 18px; border-radius: 10px; font-size: 13px; margin-bottom: 22px; text-align: left; }
+    .info div { padding: 4px 0; }
+    .info strong { color: #001f44; }
+    .btn {
+      display: inline-block; padding: 11px 26px; border-radius: 8px;
+      background: #001f44; color: #fff; text-decoration: none; font-weight: 600;
+      font-size: 13.5px; border: none; cursor: pointer;
+    }
+    .btn:hover { background: #003366; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Admin Portal</h1>
+    <p>Trang quản trị dành riêng cho role <strong>ADMIN</strong>. API: <code>/admin/*</code>.</p>
+
+    <div class="info">
+      <div><strong>Xin chào:</strong> <span id="adminName">—</span></div>
+      <div><strong>Email:</strong> <span id="adminEmail">—</span></div>
+    </div>
+
+    <button class="btn" id="btnLogout">Đăng xuất</button>
+  </div>
+
+  <script>
+    const API_BASE_URL = 'http://127.0.0.1:5000';
+
+    async function loadAdmin() {
+      try {
+        const r = await fetch(`${API_BASE_URL}/auth/me`, { credentials: 'include' });
+        const j = await r.json();
+        if (!r.ok || !j.success || j.data?.user?.role !== 'ADMIN') {
+          window.location.href = '../login/login.html';
+          return;
+        }
+        document.getElementById('adminName').textContent = j.data.user.name;
+        document.getElementById('adminEmail').textContent = j.data.user.email;
+      } catch (e) {
+        window.location.href = '../login/login.html';
+      }
+    }
+
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+      try { await fetch(`${API_BASE_URL}/auth/logout`, { method: 'POST', credentials: 'include' }); }
+      catch (e) {}
+      window.location.href = '../login/login.html';
+    });
+
+    loadAdmin();
+  </script>
+</body>
+</html>

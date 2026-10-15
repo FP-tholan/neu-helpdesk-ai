@@ -10,10 +10,10 @@
   <!-- Sidebar Navigation -->
   <aside class="sidebar">
     <div class="sidebar-header">
-      <img src="Bieu-tuong-1-1-scaled.webp" alt="NEU Logo" class="sidebar-logo">
+      <img src="../assets/Bieu-tuong-1-1-scaled.webp" alt="NEU Logo" class="sidebar-logo">
       <div class="sidebar-brand">
         <h2>IT Team Hub</h2>
-        <span class="badge-admin">Admin Portal</span>
+        <span class="badge-admin">Team Lead Portal</span>
       </div>
     </div>
 
@@ -347,24 +347,24 @@
       <form id="addMemberForm">
         <div class="modal-body">
           <div class="form-group">
+            <label>Username đăng nhập (*):</label>
+            <input type="text" id="newTechUsername" class="form-control"
+                   placeholder="VD: minhnv" required>
+          </div>
+          <div class="form-group">
             <label>Họ và tên (*):</label>
-            <input type="text" id="newTechName" class="form-control" placeholder="VD: Nguyễn Văn Minh" required>
+            <input type="text" id="newTechName" class="form-control"
+                   placeholder="VD: Nguyễn Văn Minh" required>
           </div>
           <div class="form-group">
             <label>Email (*):</label>
-            <input type="email" id="newTechEmail" class="form-control" placeholder="minhnv@neu.edu.vn hoặc gmail.com" required>
+            <input type="email" id="newTechEmail" class="form-control"
+                   placeholder="minhnv@neu.edu.vn" required>
           </div>
           <div class="form-group">
-            <label>Số điện thoại (*):</label>
-            <input type="text" id="newTechPhone" class="form-control" placeholder="VD: 0988 123 456" required>
-          </div>
-          <div class="form-group">
-            <label>Vai trò trong Đội:</label>
-            <select id="newTechRole" class="form-control">
-              <option value="Kỹ thuật viên chính">Kỹ thuật viên chính</option>
-              <option value="Hỗ trợ kỹ thuật (Support)">Hỗ trợ kỹ thuật (Support)</option>
-              <option value="Trưởng nhóm (Team Lead)">Trưởng nhóm (Team Lead)</option>
-            </select>
+            <label>Mật khẩu (*):</label>
+            <input type="password" id="newTechPassword" class="form-control"
+                   placeholder="Tối thiểu 6 ký tự" minlength="6" required>
           </div>
         </div>
         <div class="modal-footer">

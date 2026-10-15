@@ -513,34 +513,20 @@ function renderTechDashboard() {
     dashboardData.ticket_queue || [];
 
 
-  const workloadStats =
-    dashboardData.workload_stats || {
-      assigned: 0,
-      in_progress: 0,
-      resolved: 0
-    };
+  const workloadStats = dashboardData.workload_stats || {
+    assigned: 0,
+    in_progress: 0,
+    waiting_confirm: 0,
+    re_process: 0,
+  };
 
+  const elAssign  = document.getElementById('statAssigned');
+  const elProg    = document.getElementById('statProgress');
+  const elWaiting = document.getElementById('statWaitingConfirm');
 
-  // =======================================================
-  // 1. Workload Stats
-  // =======================================================
-
-  document.getElementById(
-    'statAssigned'
-  ).textContent =
-    workloadStats.assigned || 0;
-
-
-  document.getElementById(
-    'statProgress'
-  ).textContent =
-    workloadStats.in_progress || 0;
-
-
-  document.getElementById(
-    'statResolved'
-  ).textContent =
-    workloadStats.resolved || 0;
+  if (elAssign)  elAssign.textContent  = workloadStats.assigned || 0;
+  if (elProg)    elProg.textContent    = workloadStats.in_progress || 0;
+  if (elWaiting) elWaiting.textContent = workloadStats.waiting_confirm || 0;
 
 
   // =======================================================
@@ -616,24 +602,7 @@ function renderTechDashboard() {
       // ---------------------------------------------------
 
       if (currentTabFilter === 'my_work') {
-
-        /*
-         * Backend queue không trả assigned_to.
-         *
-         * Tuy nhiên các ticket do chính Technician xử lý
-         * vẫn có thể xác định qua ticket detail.
-         *
-         * Vì dashboard queue hiện tại chưa trả assigned_to,
-         * ở Phase 6 ta lọc theo status IN_PROGRESS/RESOLVED
-         * và sẽ hiển thị các ticket đang được theo dõi.
-         *
-         * Ticket ASSIGNED chưa có Technician cụ thể.
-         */
-
-        if (
-          status !== 'in_progress' &&
-          status !== 'resolved'
-        ) {
+        if (ticket.assigned_to !== currentTech.idNumber) {
           return false;
         }
       }
@@ -882,14 +851,11 @@ function renderTechDashboard() {
      * được dùng để hiển thị.
      */
 
-    if (
-      status === 'in_progress' ||
-      status === 'resolved'
-    ) {
-      assignedTech =
-        currentTech.name;
+    if (ticket.assigned_to) {
+      assignedTech = (ticket.assigned_to === currentTech.idNumber)
+        ? currentTech.name
+        : ticket.assigned_to;
     }
-
 
     // =====================================================
     // Action Button
@@ -898,7 +864,7 @@ function renderTechDashboard() {
     let actionBtnHtml = '';
 
 
-    if (status === 'assigned') {
+    if (status === 'assigned'|| status === 're_process') {
 
       actionBtnHtml = `
         <button
@@ -1909,26 +1875,14 @@ function getPriorityLabel(priority) {
 
 
 function getStatusLabel(status) {
-
   const map = {
-
-    assigned:
-      'Chờ tiếp nhận',
-
-    in_progress:
-      'Đang xử lý',
-
-    resolved:
-      'Đã sửa xong',
-
-    closed:
-      'Đã đóng'
-
+    new:              'Mới tạo',
+    assigned:         'Chờ tiếp nhận',
+    in_progress:      'Đang xử lý',
+    waiting_confirm:  'Chờ nghiệm thu',
+    re_process:       'Cần xử lý lại',
+    closed:           'Đã đóng',
+    cancelled:        'Đã hủy',
   };
-
-
-  return map[
-    String(status).toLowerCase()
-  ] || status || '';
-
+  return map[String(status).toLowerCase()] || status || '';
 }

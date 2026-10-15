@@ -305,4 +305,24 @@ Chỉ chịu trách nhiệm AI interface.
 Verify request/response.
 
 ---
+# 12. URL Layout (v1)
+
+| Nhóm | Prefix | Role |
+| --- | --- | --- |
+| Auth | /auth/* | public |
+| User | /api/*, /tickets/* | USER |
+| Technician | /technician/* | TECHNICIAN |
+| Team Lead | /management/* | TEAM_LEAD |
+| Admin | /admin/* | ADMIN |
+
+Endpoint thao tác ticket lifecycle:
+- POST /tickets/{id}/accept    (user accept)
+- POST /tickets/{id}/reject    (user reject, body {reason})
+- POST /technician/tickets/{id}/accept       (tech nhận)
+- POST /technician/tickets/{id}/progress     (tech ghi chú)
+- POST /technician/tickets/{id}/resolve      (tech WAITING_CONFIRM)
+- POST /technician/tickets/{id}/escalate     (tech chuyển team)
+
+Envelope: { success, data } hoặc { success, error: {code, message} }.
+Xem `07-contract-audit.md` mục 6.
 

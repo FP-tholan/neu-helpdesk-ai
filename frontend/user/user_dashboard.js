@@ -923,79 +923,21 @@ document.addEventListener(
 // ============================================================
 
 function getStatusBadge(status) {
-
-  const normalizedStatus =
-    status
-      ? status.toLowerCase()
-      : '';
-
+  const normalizedStatus = (status || '').toLowerCase();
 
   const map = {
-
-    assigned: {
-
-      label:
-        'Chờ tiếp nhận',
-
-      class:
-        'badge-open'
-    },
-
-    open: {
-
-      label:
-        'Chờ tiếp nhận',
-
-      class:
-        'badge-open'
-    },
-
-    in_progress: {
-
-      label:
-        'Đang xử lý',
-
-      class:
-        'badge-in_progress'
-    },
-
-    resolved: {
-
-      label:
-        'Đã xử lý (Chờ nghiệm thu)',
-
-      class:
-        'badge-resolved'
-    },
-
-    closed: {
-
-      label:
-        'Đã đóng (Nghiệm thu xong)',
-
-      class:
-        'badge-closed'
-    }
-
+    new:              { label: 'Mới tạo',            class: 'badge-open' },
+    assigned:         { label: 'Chờ tiếp nhận',      class: 'badge-open' },
+    in_progress:      { label: 'Đang xử lý',         class: 'badge-in_progress' },
+    waiting_confirm:  { label: 'Chờ nghiệm thu',     class: 'badge-resolved' },
+    re_process:       { label: 'Cần xử lý lại',      class: 'badge-reject' },
+    closed:           { label: 'Đã đóng',            class: 'badge-closed' },
+    cancelled:        { label: 'Đã hủy',             class: 'badge-closed' },
   };
 
+  const item = map[normalizedStatus] || { label: status, class: 'badge-closed' };
 
-  const item =
-    map[normalizedStatus] || {
-
-      label:
-        status,
-
-      class:
-        'badge-closed'
-    };
-
-
-  return `
-    <span class="ticket-badge ${item.class}">
-      ${item.label}
-    </span>
-  `;
+  return `<span class="ticket-badge ${item.class}">${item.label}</span>`;
 }
 
 
@@ -1580,78 +1522,25 @@ async function openTicketDetail(ticketId) {
       //    RESOLVED -> IN_PROGRESS
       // ------------------------------------------------------
 
-      if (status === 'resolved') {
-
+      if (status === 'waiting_confirm') {
         footer.innerHTML = `
-
-          <button
-            type="button"
-            class="btn btn-primary"
-            id="btnConfirmComplete"
-          >
+          <button type="button" class="btn btn-primary" id="btnAcceptTicket">
             Xác nhận hoàn tất
           </button>
-
-          <button
-            type="button"
-            class="btn btn-secondary"
-            id="btnRequestReopen"
-          >
+          <button type="button" class="btn btn-secondary" id="btnRejectTicket">
             Yêu cầu xử lý tiếp
           </button>
-
         `;
 
-
-        // ----------------------------------------------------
-        // XÁC NHẬN HOÀN TẤT
-        // ----------------------------------------------------
-
-        const btnConfirmComplete =
-          document.getElementById(
-            'btnConfirmComplete'
-          );
-
-
-        if (btnConfirmComplete) {
-
-          btnConfirmComplete.addEventListener(
-            'click',
-            () => {
-
-              closeTicket(
-                header.id
-              );
-
-            }
-          );
+        const btnAccept = document.getElementById('btnAcceptTicket');
+        if (btnAccept) {
+          btnAccept.addEventListener('click', () => acceptTicket(header.id));
         }
 
-
-        // ----------------------------------------------------
-        // YÊU CẦU XỬ LÝ TIẾP
-        // ----------------------------------------------------
-
-        const btnRequestReopen =
-          document.getElementById(
-            'btnRequestReopen'
-          );
-
-
-        if (btnRequestReopen) {
-
-          btnRequestReopen.addEventListener(
-            'click',
-            () => {
-
-              reopenTicket(
-                header.id
-              );
-
-            }
-          );
+        const btnReject = document.getElementById('btnRejectTicket');
+        if (btnReject) {
+          btnReject.addEventListener('click', () => rejectTicket(header.id));
         }
-
       }
 
     }
@@ -1690,251 +1579,89 @@ async function openTicketDetail(ticketId) {
 
 
 // ============================================================
-// CLOSE TICKET
-// PHASE 9 - USER XÁC NHẬN HOÀN TẤT
-// RESOLVED -> CLOSED
+// ACCEPT TICKET — WAITING_CONFIRM → CLOSED
 // ============================================================
 
-async function closeTicket(ticketId) {
+async function acceptTicket(ticketId) {
+  if (!ticketId) { alert('Không xác định được Ticket.'); return; }
 
-  if (!ticketId) {
-
-    alert(
-      'Không xác định được Ticket.'
-    );
-
-    return;
-  }
-
-
-  const confirmed =
-    confirm(
-      'Bạn xác nhận sự cố đã được xử lý hoàn tất?'
-    );
-
-
-  if (!confirmed) {
-    return;
-  }
-
+  if (!confirm('Bạn xác nhận sự cố đã được xử lý hoàn tất?')) return;
 
   try {
+    const response = await fetch(
+      `http://127.0.0.1:5000/tickets/${ticketId}/accept`,
+      { method: 'POST', credentials: 'include' }
+    );
 
-    const response =
-      await fetch(
-        `http://127.0.0.1:5000/tickets/${ticketId}/close`,
-        {
-          method: 'POST',
-          credentials: 'include'
-        }
-      );
-
-
-    const result =
-      await response.json();
-
-
-    // --------------------------------------------------------
-    // SESSION HẾT HẠN
-    // --------------------------------------------------------
+    const result = await response.json();
 
     if (response.status === 401) {
-
-      alert(
-        'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
-      );
-
-      window.location.href =
-        '../login/login.html';
-
+      alert('Phiên đăng nhập đã hết hạn.');
+      window.location.href = '../login/login.html';
       return;
     }
 
-
-    // --------------------------------------------------------
-    // BACKEND ERROR
-    // --------------------------------------------------------
-
-    if (
-      !response.ok ||
-      !result.success
-    ) {
-
-      alert(
-        result.error?.message ||
-        'Không thể xác nhận hoàn tất ticket.'
-      );
-
+    if (!response.ok || !result.success) {
+      alert(result.error?.message || 'Không thể xác nhận hoàn tất ticket.');
       return;
     }
 
+    alert(`Đã xác nhận hoàn tất ticket #${ticketId}.`);
 
-    // --------------------------------------------------------
-    // SUCCESS
-    // --------------------------------------------------------
-
-    alert(
-      `Đã xác nhận hoàn tất ticket #${ticketId}.`
-    );
-
-
-    // Cập nhật Dashboard
     await loadDashboardData();
-
-
-    // Cập nhật lại Ticket Detail
-    await openTicketDetail(
-      ticketId
-    );
-
+    await openTicketDetail(ticketId);
   } catch (error) {
-
-    console.error(
-      'Close ticket error:',
-      error
-    );
-
-
-    alert(
-      'Không thể kết nối đến Backend.'
-    );
+    console.error('Accept ticket error:', error);
+    alert('Không thể kết nối đến Backend.');
   }
 }
 
-
 // ============================================================
-// REOPEN TICKET
-// PHASE 9 - USER YÊU CẦU XỬ LÝ TIẾP
-// RESOLVED -> IN_PROGRESS
+// REJECT TICKET — WAITING_CONFIRM → RE_PROCESS
 // ============================================================
 
-async function reopenTicket(ticketId) {
+async function rejectTicket(ticketId) {
+  if (!ticketId) { alert('Không xác định được Ticket.'); return; }
 
-  if (!ticketId) {
+  const reason = prompt('Vui lòng nhập lý do yêu cầu xử lý tiếp:');
+  if (reason === null) return;
 
-    alert(
-      'Không xác định được Ticket.'
-    );
-
+  const trimmed = reason.trim();
+  if (!trimmed) {
+    alert('Vui lòng nhập lý do yêu cầu xử lý tiếp.');
     return;
   }
-
-  const reason =
-    prompt(
-      'Vui lòng nhập lý do yêu cầu xử lý tiếp:'
-    );
-
-
-  if (reason === null) {
-    return;
-  }
-
-
-  const trimmedReason =
-    reason.trim();
-
-
-  if (!trimmedReason) {
-
-    alert(
-      'Vui lòng nhập lý do yêu cầu xử lý tiếp.'
-    );
-
-    return;
-  }
-
 
   try {
+    const response = await fetch(
+      `http://127.0.0.1:5000/tickets/${ticketId}/reject`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ reason: trimmed }),
+      }
+    );
 
-    const response =
-      await fetch(
-        `http://127.0.0.1:5000/tickets/${ticketId}/reopen`,
-        {
-          method: 'POST',
-
-          headers: {
-            'Content-Type':
-              'application/json'
-          },
-
-          credentials: 'include',
-
-          body:
-            JSON.stringify({
-              note:
-                trimmedReason
-            })
-        }
-      );
-
-
-    const result =
-      await response.json();
-
-
-    // --------------------------------------------------------
-    // SESSION HẾT HẠN
-    // --------------------------------------------------------
+    const result = await response.json();
 
     if (response.status === 401) {
-
-      alert(
-        'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
-      );
-
-      window.location.href =
-        '../login/login.html';
-
+      alert('Phiên đăng nhập đã hết hạn.');
+      window.location.href = '../login/login.html';
       return;
     }
 
-
-    // --------------------------------------------------------
-    // BACKEND ERROR
-    // --------------------------------------------------------
-
-    if (
-      !response.ok ||
-      !result.success
-    ) {
-
-      alert(
-        result.error?.message ||
-        'Không thể yêu cầu xử lý tiếp.'
-      );
-
+    if (!response.ok || !result.success) {
+      alert(result.error?.message || 'Không thể yêu cầu xử lý tiếp.');
       return;
     }
 
+    alert(`Đã gửi yêu cầu xử lý tiếp cho ticket #${ticketId}. Đơn đã được đẩy lại Team.`);
 
-    // --------------------------------------------------------
-    // SUCCESS
-    // --------------------------------------------------------
-
-    alert(
-      `Đã gửi yêu cầu xử lý tiếp cho ticket #${ticketId}.`
-    );
-
-
-    // Cập nhật Dashboard
     await loadDashboardData();
-
-
-    // Cập nhật lại Ticket Detail
-    await openTicketDetail(
-      ticketId
-    );
-
+    await openTicketDetail(ticketId);
   } catch (error) {
-
-    console.error(
-      'Reopen ticket error:',
-      error
-    );
-
-
-    alert(
-      'Không thể kết nối đến Backend.'
-    );
+    console.error('Reject ticket error:', error);
+    alert('Không thể kết nối đến Backend.');
   }
 }

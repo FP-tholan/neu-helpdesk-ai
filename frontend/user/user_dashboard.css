@@ -612,3 +612,7 @@ body {
   gap: 12px;
   background-color: #f8fafc;
 }
+.badge-reject {
+  background-color: #fef2f2;
+  color: #dc2626;
+}

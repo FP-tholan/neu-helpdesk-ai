@@ -1,42 +1,241 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Đăng Nhập</title>
-<link rel="stylesheet" href="login_style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEU Helpdesk - Đăng nhập</title>
+
+    <!-- Import font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="login.css">
 </head>
+
 <body>
-  <div class="login-box">
-    <img src="Bieu-tuong-1-1-scaled.webp" alt="Logo" class="logo">
-    <h1 class="site-title">NEU HelpDesk</h1>
-    <h2>Đăng nhập</h2>
-    <form id="loginForm" novalidate>
-      <div class="input-group">
-        <label>Email</label>
-        <input type="text" id="email" placeholder="Nhập email">
-        <span class="error-slot" id="email-error"></span>
-      </div>
-      <div class="input-group">
-        <label>Mật Khẩu</label>
-        <div class="password-wrapper">
-          <input type="password" id="password" placeholder="Nhập mật khẩu">
-          <span class="toggle-eye" id="togglePassword">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </span>
+    <div class="app-container">
+
+        <!-- Slider nền -->
+        <div class="slider-container">
+            <img src="../assets/neu_2.jpg" 
+                class="slide active"
+                data-theme="light-bg"
+                alt="Tòa nhà Đại học Kinh tế Quốc dân">
+
+            <img src="../assets/background1.webp"
+                class="slide"
+                data-theme="dark-bg"
+                alt="Không gian Đại học Kinh tế Quốc dân">
+
+            <img src="../assets/images_thanxuan.jpg"
+                class="slide"
+                data-theme="light-bg"
+                alt="Khuôn viên Đại học Kinh tế Quốc dân">
+
+            <img src="../assets/images_toa_A2.jpg"
+                class="slide"
+                data-theme="light-bg"
+                alt="Tòa nhà A2 Đại học Kinh tế Quốc dân">
+
+            <img src="../assets/neu_3.jpg"
+                class="slide"
+                data-theme="light-bg"
+                alt="Đại học Kinh tế Quốc dân">
         </div>
-        <span class="error-slot" id="password-error"></span>
-      </div>
-      <div class="options">
-        <label><input type="checkbox" id="rememberMe"> Ghi nhớ đăng nhập</label>
-        <a href="#">Quên mật khẩu</a>
-      </div>
-      <button type="submit" class="login-btn" id="loginBtn">Đăng Nhập</button>
-    </form>
-  </div>
-<script src="login.js"></script>
+
+        <div class="overlay"></div>
+
+        <!-- Điều hướng slider -->
+        <div class="slider-nav">
+            <button type="button"
+                    class="nav-bar active"
+                    onclick="goToSlide(0)"
+                    aria-label="Hiển thị ảnh nền thứ nhất">
+            </button>
+
+            <button type="button"
+                    class="nav-bar"
+                    onclick="goToSlide(1)"
+                    aria-label="Hiển thị ảnh nền thứ hai">
+            </button>
+
+            <button type="button"
+                    class="nav-bar"
+                    onclick="goToSlide(2)"
+                    aria-label="Hiển thị ảnh nền thứ ba">
+            </button>
+
+            <button type="button"
+                    class="nav-bar"
+                    onclick="goToSlide(3)"
+                    aria-label="Hiển thị ảnh nền thứ tư">
+            </button>
+
+            <button type="button"
+                    class="nav-bar"
+                    onclick="goToSlide(4)"
+                    aria-label="Hiển thị ảnh nền thứ năm">
+            </button>
+        </div>
+
+        <!-- Nội dung chính -->
+        <main class="main-content">
+
+            <!-- Phần giới thiệu -->
+            <section class="text-section">
+                <h1>NEU HELPDESK</h1>
+                <h3>PHẢN ÁNH CƠ SỞ VẬT CHẤT</h3>
+
+                <h2>Xây dựng không gian học tập tiện nghi</h2>
+
+                <p>
+                    Kênh tiếp nhận báo cáo hỏng hóc, sự cố thiết bị
+                    và gửi yêu cầu hỗ trợ trực tiếp tới phòng quản lý
+                    thiết bị Đại học Kinh tế Quốc dân.
+                </p>
+            </section>
+
+            <!-- Khung đăng nhập -->
+            <section class="login-section"
+                     aria-labelledby="login-title">
+
+                <!-- Logo NEU -->
+                <div class="logo-container">
+                    <img src="../assets/Bieu-tuong-1-1-scaled.webp"
+                         alt="Logo Đại học Kinh tế Quốc dân"
+                         class="neu-logo">
+                </div>
+
+                <div class="login-logo">
+                    Đại Học
+                    <span>Kinh tế quốc dân</span>
+                </div>
+
+                <h2 id="login-title">ĐĂNG NHẬP</h2>
+
+                <p class="login-description">
+                    Đăng nhập để sử dụng hệ thống NEU Helpdesk
+                </p>
+
+                <!-- Form đăng nhập -->
+                <form id="loginForm" novalidate>
+
+                    <!-- Username / Email -->
+                    <div class="input-group">
+                        <label for="username">Username / Email</label>
+
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Nhập username hoặc email"
+                            autocomplete="username"
+                            maxlength="254"
+                            aria-describedby="usernameError"
+                            required>
+
+                        <small class="error-message"
+                               id="usernameError"
+                               aria-live="polite"></small>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="input-group">
+                        <label for="password">Mật khẩu</label>
+
+                        <div class="password-wrapper">
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Nhập mật khẩu"
+                                autocomplete="current-password"
+                                aria-describedby="passwordError"
+                                required>
+
+                          
+                            <button
+                                type="button"
+                                id="togglePassword"
+                                class="toggle-password"
+                                aria-label="Hiển thị mật khẩu"
+                                aria-pressed="false">
+
+                                <svg id="eyeIcon"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    width="24"
+                                    height="24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    aria-hidden="true">
+                                </svg>
+
+                            </button>
+
+                        </div>
+
+                        <small class="error-message"
+                               id="passwordError"
+                               aria-live="polite"></small>
+                    </div>
+
+                    <!-- Remember Me và Forgot Password -->
+                    <div class="options">
+
+                        <label class="remember-me">
+                            <input
+                                type="checkbox"
+                                id="rememberMe"
+                                name="rememberMe">
+
+                            <span>Ghi nhớ đăng nhập</span>
+                        </label>
+
+                        <a href="#forgot-password"
+                           id="forgotPassword">
+                            Quên mật khẩu?
+                        </a>
+                    </div>
+
+                    <!-- Thông báo chung -->
+                    <div id="loginMessage"
+                         class="login-message"
+                         role="alert"
+                         aria-live="polite">
+                    </div>
+
+                    <!-- Nút đăng nhập -->
+                    <button
+                        type="submit"
+                        id="loginButton"
+                        class="btn-primary">
+
+                        <span id="buttonText">ĐĂNG NHẬP</span>
+
+                        <span id="loadingSpinner"
+                              class="loading-spinner"
+                              hidden>
+                            Đang xác thực...
+                        </span>
+                    </button>
+
+                </form>
+
+                <p class="login-footer">
+                    NEU Helpdesk - Hỗ trợ cơ sở vật chất
+                </p>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="login.js"></script>
 </body>
 </html>

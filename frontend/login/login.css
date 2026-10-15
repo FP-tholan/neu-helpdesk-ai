@@ -1,0 +1,689 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Quicksand', sans-serif;
+}
+
+body {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #e8ecf9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+}
+
+/* KHUNG ỨNG DỤNG */
+.app-container {
+    position: relative;
+    width: 92%;
+    max-width: 1200px;
+    min-height: 600px;
+    height: 85vh;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px rgba(104, 98, 98, 0.3);
+}
+
+/* SLIDER NỀN */
+.slider-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+/* LỚP PHỦ GRADIENT */
+.overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.55) 0%,
+        rgba(0, 0, 0, 0.35) 30%,
+        rgba(0, 0, 0, 0.15) 100%
+    );
+    z-index: 1;
+}
+
+/* BỐ CỤC CHÍNH */
+.main-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 36px;
+    width: 100%;
+    min-height: 100%;
+    padding: 44px 6%;
+    color: #ffffff;
+    position: relative;
+    z-index: 2;
+}
+
+/* CỘT TRÁI */
+.text-section {
+    flex: 1 1 0;
+    max-width: 50%;
+}
+
+.text-section h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    color: #38bdf8;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.text-section h1 {
+    font-size: 3.2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 15px;
+    color: #ffffff;
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.9);
+}
+
+.text-section h2 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 18px;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.text-section p {
+    font-size: 0.92rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 95%;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* KHUNG ĐĂNG NHẬP */
+.login-section {
+    flex: 0 1 400px;
+    width: 400px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 20px;
+    padding: 28px 26px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+    font-family: 'Quicksand', sans-serif;
+}
+
+.logo-container {
+    margin-bottom: 8px;
+}
+
+.neu-logo {
+    width: 170px;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+}
+
+.login-logo {
+    text-align: center;
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: #ffffff;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.login-logo span {
+    color: #e9ecef;
+}
+
+#login-title {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+}
+
+.login-description {
+    text-align: center;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.88);
+    margin-bottom: 20px;
+}
+
+/* INPUT */
+.input-group {
+    margin-bottom: 14px;
+    text-align: left;
+}
+
+.input-group > label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #ffffff;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.input-group input {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 14px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.92rem;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.input-group input:focus {
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.23);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
+}
+
+.input-group input.input-error {
+    border-color: #fecaca;
+    box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.18);
+}
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    padding-right: 48px;
+}
+
+
+/* Nút icon hiện/ẩn mật khẩu */
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 30px;
+    height: 30px;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none !important;
+    border-radius: 0 !important;
+    outline: none;
+    background: transparent !important;
+    box-shadow: none !important;
+
+    color: #ffffff;
+    cursor: pointer;
+}
+
+/* Icon SVG */
+.toggle-password svg {
+    display: block;
+    width: 25px;
+    height: 25px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
+
+/* Không hiện khung khi rê chuột */
+.toggle-password:hover,
+.toggle-password:focus-visible {
+    background: transparent !important;
+    outline: none;
+    box-shadow: none !important;
+}
+
+
+.error-message {
+    display: block;
+    min-height: 0;
+    margin-top: 4px;
+    color: #ffe0e0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.error-message:empty {
+    display: none;
+}
+
+/* REMEMBER ME + FORGOT PASSWORD */
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 2px 0 18px;
+}
+
+.remember-me {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #ffffff;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.remember-me input {
+    width: 15px;
+    height: 15px;
+    accent-color: #2563eb;
+    cursor: pointer;
+}
+
+.options a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.options a:hover {
+    text-decoration: underline;
+}
+
+/* THÔNG BÁO */
+.login-message {
+    display: none;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.login-message.error {
+    display: block;
+    color: #fff0f0;
+    background: rgba(153, 27, 27, 0.55);
+    border: 1px solid rgba(254, 202, 202, 0.7);
+}
+
+.login-message.info {
+    display: block;
+    color: #eff6ff;
+    background: rgba(30, 64, 175, 0.45);
+    border: 1px solid rgba(191, 219, 254, 0.65);
+}
+
+.login-message.success {
+    display: block;
+    color: #f0fdf4;
+    background: rgba(21, 128, 61, 0.45);
+    border: 1px solid rgba(187, 247, 208, 0.65);
+}
+
+/* NÚT ĐĂNG NHẬP */
+.btn-primary {
+    width: 100%;
+    min-height: 44px;
+    padding: 12px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s, opacity 0.2s;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.btn-primary:active {
+    transform: translateY(1px);
+}
+
+.btn-primary:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.85);
+    outline-offset: 3px;
+}
+
+.btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.loading-spinner {
+    font-weight: 600;
+}
+
+.login-footer {
+    margin-top: 18px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.72rem;
+    line-height: 1.5;
+}
+
+/* THANH ĐIỀU HƯỚNG SLIDER */
+.slider-nav {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.nav-bar {
+    width: 25px;
+    height: 5px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.55);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+.nav-bar.active {
+    width: 50px;
+    background: #ffffff;
+}
+
+.nav-bar:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 4px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    body {
+        padding: 16px;
+        align-items: flex-start;
+    }
+
+    .app-container {
+        width: 100%;
+        height: auto;
+        min-height: calc(100vh - 32px);
+        overflow: hidden;
+    }
+
+    .main-content {
+        min-height: calc(100vh - 32px);
+        flex-direction: column;
+        justify-content: center;
+        gap: 28px;
+        padding: 40px 7% 60px;
+    }
+
+    .text-section {
+        max-width: 620px;
+        width: 100%;
+        flex: 0 1 auto;
+        text-align: center;
+    }
+
+    .text-section h1 {
+        font-size: 2.5rem;
+    }
+
+    .text-section p {
+        max-width: 100%;
+    }
+
+    .login-section {
+        flex: 0 1 auto;
+        width: min(100%, 430px);
+    }
+
+    .slider-nav {
+        bottom: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 0;
+    }
+
+    .app-container {
+        border-radius: 0;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        min-height: 100vh;
+        padding: 30px 18px 54px;
+        gap: 24px;
+    }
+
+    .text-section h1 {
+        font-size: 2rem;
+    }
+
+    .text-section h3 {
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+    }
+
+    .text-section h2 {
+        font-size: 1rem;
+    }
+
+    .text-section p {
+        font-size: 0.84rem;
+    }
+
+    .login-section {
+        padding: 24px 20px;
+        border-radius: 16px;
+    }
+
+    .neu-logo {
+        width: 140px;
+    }
+
+    .login-logo {
+        font-size: 1.15rem;
+    }
+
+    .options {
+        align-items: flex-start;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+/* =====================================================
+   LOGIN LAYOUT ADJUSTMENTS
+   Keeps the original stylesheet and visual design intact.
+   ===================================================== */
+
+/* Hide only the two requested lines of explanatory text. */
+.login-section .login-description,
+.login-section .login-footer {
+    display: none !important;
+}
+
+/* Compact login card, centered in the right-hand column. */
+.login-section {
+    flex: 0 1 400px;
+    width: 400px;
+    max-width: 100%;
+    margin: 0;
+    padding: 24px 26px;
+    box-sizing: border-box;
+}
+
+/* Keep the logo and heading spacing compact. */
+.login-section .logo-container {
+    margin-bottom: 5px;
+}
+
+.login-section .neu-logo {
+    width: 150px;
+}
+
+.login-section .login-logo {
+    margin-bottom: 12px;
+}
+
+.login-section #login-title {
+    margin-bottom: 14px;
+}
+
+/* Labels stay above their inputs; inputs keep the original glass style. */
+.login-section .input-group {
+    display: block;
+    width: 100%;
+    margin-bottom: 14px;
+    text-align: left;
+}
+
+.login-section .input-group > label {
+    display: block;
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+.login-section .input-group input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    padding: 11px 14px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.92rem;
+    outline: none;
+}
+
+.login-section .input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.login-section .input-group input:focus {
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.23);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
+}
+
+/* Password visibility button stays inside the password field. */
+.login-section .password-wrapper {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+.login-section .password-wrapper input {
+    padding-right: 48px;
+}
+
+.login-section .toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0;
+}
+
+/* Remember-me and forgot-password stay on one row when possible. */
+.login-section .options {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin: 2px 0 18px;
+}
+
+.login-section .btn-primary {
+    display: block;
+    width: 100%;
+}
+
+@media (max-width: 900px) {
+    .login-section {
+        flex: 0 1 auto;
+        width: min(100%, 430px);
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-section {
+        padding: 22px 20px;
+    }
+
+    .login-section .options {
+        flex-wrap: wrap;
+    }
+}
+

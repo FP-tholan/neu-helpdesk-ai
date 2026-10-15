@@ -63,7 +63,8 @@ def get_workload_stats(db, technician_id):
     stats = {
         "assigned": 0,
         "in_progress": 0,
-        "resolved": 0
+        "waiting_confirm": 0,
+        "re_process": 0
     }
 
     for ticket in tickets:
@@ -73,8 +74,11 @@ def get_workload_stats(db, technician_id):
         elif ticket.status == "IN_PROGRESS":
             stats["in_progress"] += 1
 
-        elif ticket.status == "RESOLVED":
-            stats["resolved"] += 1
+        elif ticket.status == "WAITING_CONFIRM":
+            stats["waiting_confirm"] += 1
+
+        elif ticket.status == "RE_PROCESS":
+            stats["re_process"] += 1
 
     return stats
 
@@ -153,6 +157,7 @@ def get_technician_ticket_queue(db, technician_id):
 
             "priority": ticket.priority,
             "status": ticket.status,
+            "assigned_to": ticket.assigned_to, 
             "created_at": ticket.created_at
         })
 
@@ -339,11 +344,8 @@ def accept_technician_ticket(db, technician_id, ticket_id):
         }
 
     # Ticket phải đang chờ nhận
-    if ticket.status != "ASSIGNED":
-        return {
-            "success": False,
-            "error": "TICKET_NOT_ASSIGNABLE"
-        }
+    if ticket.status not in ("ASSIGNED", "RE_PROCESS"):
+        return {"success": False, "error": "TICKET_NOT_ASSIGNABLE"}
 
     # Không cho nhận nếu đã có người xử lý
     if ticket.assigned_to is not None:
@@ -420,11 +422,8 @@ def update_technician_progress(
         }
 
     # Chỉ cho cập nhật khi đang xử lý
-    if ticket.status != "IN_PROGRESS":
-        return {
-            "success": False,
-            "error": "TICKET_NOT_IN_PROGRESS"
-        }
+    if ticket.status not in ("IN_PROGRESS", "RE_PROCESS"):
+        return {"success": False, "error": "TICKET_NOT_IN_PROGRESS"}
 
     # Bắt buộc có nội dung cập nhật
     if not note or not note.strip():
@@ -516,7 +515,7 @@ def resolve_technician_ticket(
 
     old_status = ticket.status
 
-    ticket.status = "RESOLVED"
+    ticket.status = "WAITING_CONFIRM"
 
     note = (
         f"Nguyên nhân: {cause.strip()}\n"
@@ -527,7 +526,7 @@ def resolve_technician_ticket(
         id=f"HIS-{uuid.uuid4()}",
         ticket_id=ticket.id,
         from_status=old_status,
-        to_status="RESOLVED",
+        to_status="WAITING_CONFIRM",
         note=note,
         updated_by=technician_id
     )

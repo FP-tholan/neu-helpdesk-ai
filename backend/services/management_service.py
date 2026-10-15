@@ -53,25 +53,18 @@ def get_technician_workload(db, technician_id):
         db.query(Ticket)
         .filter(
             Ticket.assigned_to == technician_id,
-            Ticket.status.in_(["ASSIGNED", "IN_PROGRESS"])
+            Ticket.status.in_(["ASSIGNED", "IN_PROGRESS", "RE_PROCESS"]),
         )
         .all()
     )
 
-    assigned = 0
-    in_progress = 0
-
-    for ticket in tickets:
-        if ticket.status == "ASSIGNED":
-            assigned += 1
-
-        elif ticket.status == "IN_PROGRESS":
-            in_progress += 1
+    assigned = sum(1 for t in tickets if t.status == "ASSIGNED")
+    in_progress = sum(1 for t in tickets if t.status in ("IN_PROGRESS", "RE_PROCESS"))
 
     return {
         "assigned": assigned,
         "in_progress": in_progress,
-        "total_open": assigned + in_progress
+        "total_open": assigned + in_progress,
     }
 
 
@@ -237,7 +230,7 @@ def assign_ticket_to_technician(
         id=f"HIS-{uuid.uuid4()}",
         ticket_id=ticket.id,
         from_status=old_status,
-        to_status="ASSIGNED",
+        to_status=old_status,
         note=f"Ticket được phân công cho kỹ thuật viên {technician.name}.",
         updated_by=manager_id
     )
@@ -389,3 +382,73 @@ def update_technician_duty_status(
             "is_on_duty": technician.is_on_duty
         }
     }
+def list_team_technicians(db, team_id):
+    techs = (
+        db.query(User)
+        .filter(User.role == "TECHNICIAN", User.team_id == team_id)
+        .order_by(User.name.asc())
+        .all()
+    )
+    return [
+        {
+            "id": t.id,
+            "name": t.name,
+            "email": t.email,
+            "team_id": t.team_id,
+            "is_on_duty": t.is_on_duty,
+        }
+        for t in techs
+    ]
+
+
+def create_team_technician(db, team_id, username, email, password, name):
+    import uuid
+    from werkzeug.security import generate_password_hash
+
+    tech = User(
+        id=f"USR_TECH_{uuid.uuid4().hex[:8].upper()}",
+        username=username,
+        email=email,
+        password_hash=generate_password_hash(password),
+        name=name,
+        role="TECHNICIAN",
+        team_id=team_id,
+        is_locked=False,
+        is_on_duty=True,
+    )
+    db.add(tech)
+    db.commit()
+    return tech
+
+def list_team_tickets(db, team_id):
+    tickets = (
+        db.query(Ticket)
+        .filter(Ticket.assigned_team_id == team_id)
+        .order_by(Ticket.created_at.desc())
+        .all()
+    )
+    result = []
+    for t in tickets:
+        room = db.query(Room).filter(Room.id == t.room_id).first()
+        building = None
+        if room is not None:
+            building = db.query(Building).filter(Building.id == room.building_id).first()
+
+        tech = None
+        if t.assigned_to is not None:
+            tech = db.query(User).filter(User.id == t.assigned_to).first()
+
+        result.append({
+            "id": t.id,
+            "title": t.title,
+            "category": t.category,
+            "priority": t.priority,
+            "status": t.status,
+            "assigned_to": {"id": tech.id, "name": tech.name} if tech else None,
+            "location": {
+                "building": {"id": building.id, "name": building.name} if building else None,
+                "room": {"id": room.id, "code": room.code, "name": room.name} if room else None,
+            },
+            "created_at": t.created_at,
+        })
+    return result

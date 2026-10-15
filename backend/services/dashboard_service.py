@@ -30,16 +30,20 @@ def get_ticket_stats(db, user_id):
         "open": 0,
         "in_progress": 0,
         "resolved": 0,
-        "closed": 0
+        "closed": 0,
     }
 
     for ticket in tickets:
-        status = ticket.status.lower()
+        status = ticket.status.upper()
 
-        if status == "assigned":
+        if status in ("NEW", "ASSIGNED"):
             stats["open"] += 1
-        elif status in stats:
-            stats[status] += 1
+        elif status in ("IN_PROGRESS", "RE_PROCESS"):
+            stats["in_progress"] += 1
+        elif status == "WAITING_CONFIRM":
+            stats["resolved"] += 1
+        elif status == "CLOSED":
+            stats["closed"] += 1
 
     return stats
 

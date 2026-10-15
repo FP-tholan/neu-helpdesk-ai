@@ -95,22 +95,16 @@ Example:
 
 ---
 
-# 5. Team-Building Relationship
-
-Một team có thể quản lý nhiều building.
+# 5. Dispatch Rule
 
 ```text
-TEAM_BCD
- ├── B
- ├── C
- └── D
+DISPATCH_RULE
+├── id:          string (PK)
+├── priority:    int
+├── category:    string | null
+├── building_id: string | null
+└── team_id:     string (FK)
 ```
-
-Không hard-code trong frontend.
-
-Backend/database là source of truth.
-
----
 
 # 6. User
 
@@ -179,15 +173,15 @@ TICKET
 # 8. Category
 
 ```text
-projector
-air_conditioner
-microphone
-computer
-electricity
-furniture
-cleaning
-other
-```
+PROJECTOR
+COMPUTER
+WIFI
+MICROPHONE
+AIR_CONDITIONER
+ELECTRICITY
+FURNITURE
+CLEANING
+OTHER
 
 ---
 
@@ -197,16 +191,6 @@ other
 low
 medium
 high
-critical
-```
-
----
-
-# 10. Ticket History
-
-```text
-TICKET_HISTORY
-├── id: string
 ├── ticket_id: string
 ├── from_status: string | null
 ├── to_status: string

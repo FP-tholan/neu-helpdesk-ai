@@ -747,3 +747,6 @@ input:checked + .slider:before {
   gap: 10px;
   background-color: #f8fafc;
 }
+.badge-re_process      { background-color: #fef2f2; color: #dc2626; }
+.badge-waiting_confirm { background-color: #ecfdf5; color: #047857; }
+.badge-new             { background-color: #eff6ff; color: #2563eb; }

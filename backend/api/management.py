@@ -8,7 +8,10 @@ from services.management_service import (
     get_unassigned_tickets,
     assign_ticket_to_technician,
     reassign_ticket_to_technician,
-    update_technician_duty_status
+    update_technician_duty_status,
+    list_team_technicians,       
+    create_team_technician,
+    list_team_tickets
 )
 
 
@@ -401,5 +404,101 @@ def management_update_technician_duty(technician_id):
 
         return jsonify(result), 200
 
+    finally:
+        db.close()
+@management_bp.get("/technicians")
+def management_list_technicians():
+    user_id = session.get("user_id")
+    if user_id is None:
+        return jsonify({"success": False, "error": "UNAUTHORIZED"}), 401
+    if session.get("role") != "TEAM_LEAD":
+        return jsonify({"success": False, "error": "FORBIDDEN"}), 403
+
+    db = SessionLocal()
+    try:
+        manager = db.query(User).filter(User.id == user_id).first()
+        if manager is None:
+            return jsonify({"success": False, "error": "USER_NOT_FOUND"}), 404
+        if manager.team_id is None:
+            return jsonify({"success": False, "error": "TEAM_NOT_FOUND"}), 404
+
+        techs = list_team_technicians(db, manager.team_id)
+        return jsonify({"success": True, "data": techs}), 200
+    finally:
+        db.close()
+
+
+@management_bp.post("/technicians")
+def management_create_technician():
+    user_id = session.get("user_id")
+    if user_id is None:
+        return jsonify({"success": False, "error": "UNAUTHORIZED"}), 401
+    if session.get("role") != "TEAM_LEAD":
+        return jsonify({"success": False, "error": "FORBIDDEN"}), 403
+
+    data = request.get_json(silent=True) or {}
+    username = (data.get("username") or "").strip()
+    email = (data.get("email") or "").strip()
+    password = data.get("password") or ""
+    name = (data.get("name") or "").strip()
+
+    if not all([username, email, password, name]):
+        return jsonify({"success": False, "error": "MISSING_FIELDS"}), 400
+    if len(password) < 6:
+        return jsonify({"success": False, "error": "WEAK_PASSWORD"}), 400
+
+    db = SessionLocal()
+    try:
+        manager = db.query(User).filter(User.id == user_id).first()
+        if manager is None:
+            return jsonify({"success": False, "error": "USER_NOT_FOUND"}), 404
+        if manager.team_id is None:
+            return jsonify({"success": False, "error": "TEAM_NOT_FOUND"}), 404
+
+        if db.query(User).filter(User.email == email).first():
+            return jsonify({"success": False, "error": "EMAIL_EXISTS"}), 409
+        if db.query(User).filter(User.username == username).first():
+            return jsonify({"success": False, "error": "USERNAME_EXISTS"}), 409
+
+        tech = create_team_technician(
+            db, manager.team_id, username, email, password, name
+        )
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "id": tech.id,
+                "name": tech.name,
+                "email": tech.email,
+                "team_id": tech.team_id,
+                "role": tech.role,
+                "is_on_duty": tech.is_on_duty,
+            },
+        }), 201
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+@management_bp.get("/tickets")
+def management_list_tickets():
+    user_id = session.get("user_id")
+    role = session.get("role")
+
+    if user_id is None:
+        return jsonify({"success": False, "error": "UNAUTHORIZED"}), 401
+    if role != "TEAM_LEAD":
+        return jsonify({"success": False, "error": "FORBIDDEN"}), 403
+
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            return jsonify({"success": False, "error": "USER_NOT_FOUND"}), 404
+        if user.team_id is None:
+            return jsonify({"success": False, "error": "TEAM_NOT_FOUND"}), 404
+
+        tickets = list_team_tickets(db, user.team_id)
+        return jsonify({"success": True, "data": tickets}), 200
     finally:
         db.close()
