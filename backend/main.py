@@ -10,6 +10,7 @@ from api.tickets import ticket_bp
 from api.technician import technician_bp
 from api.management import management_bp
 from api.admin import admin_bp   # ← sẽ tạo mới
+from api.admin_users import admin_users_bp
 
 
 load_dotenv()
@@ -34,6 +35,8 @@ app.register_blueprint(ticket_bp,     url_prefix="/tickets")
 app.register_blueprint(technician_bp, url_prefix="/technician")
 app.register_blueprint(management_bp, url_prefix="/management")
 app.register_blueprint(admin_bp,      url_prefix="/admin")
+app.register_blueprint(admin_users_bp,url_prefix="/admin/users")
+
 
 
 @app.get("/")

@@ -101,6 +101,16 @@ def get_current_user():
                 }
             }), 401
 
+        if user.is_locked:
+            session.clear()
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "ACCOUNT_LOCKED",
+                    "message": "Tài khoản của bạn đã bị khóa"
+                }
+            }), 403
+        
         return jsonify({
             "success": True,
             "data": {
