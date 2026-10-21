@@ -1,48 +1,65 @@
-<<<<<<< HEAD
+# ═══════════════════════════════════════════
 # Python
+# ═══════════════════════════════════════════
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
 *.egg-info/
-.pytest_cache/
-.mypy_cache/
+.eggs/
 
+# ═══════════════════════════════════════════
 # Virtual environments
-.venv/
+# ═══════════════════════════════════════════
 venv/
-env/
+.venv/
 ENV/
+env/
 
-# Database (chứa dữ liệu local, không cần commit)
-*.db
-*.sqlite
-*.sqlite3
-backend/database/helpdesk.db
-
-# Environment variables
+# ═══════════════════════════════════════════
+# Environment / Secrets
+# ═══════════════════════════════════════════
 .env
 .env.local
-*.env
+.env.*.local
+*.pem
+*.key
 
+# ═══════════════════════════════════════════
+# SQLite databases (để seed_all recreate)
+# ═══════════════════════════════════════════
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# ═══════════════════════════════════════════
+# Ollama / FAISS storage
+# ═══════════════════════════════════════════
+data/faiss_storage/
+*.faiss
+*.pkl
+
+# ═══════════════════════════════════════════
 # IDE
+# ═══════════════════════════════════════════
 .vscode/
 .idea/
 *.swp
+*.swo
 
+# ═══════════════════════════════════════════
 # OS
+# ═══════════════════════════════════════════
 .DS_Store
 Thumbs.db
 desktop.ini
 
+# ═══════════════════════════════════════════
 # Logs
+# ═══════════════════════════════════════════
 *.log
-
-# Backup folders (nếu có)
-login_old_backup/
-*_backup/
-=======
-.venv/
-__pycache__/
-*.pyc
-.env
-backend/database/*.db
->>>>>>> 3770029f65bd99fae8eaa090f9baf07c4b81c92d
+logs/

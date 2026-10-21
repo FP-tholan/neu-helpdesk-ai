@@ -841,31 +841,6 @@ document.addEventListener(
       );
 
 
-    [
-      btnChatAi,
-      btnSidebarChatAi
-    ].forEach(
-      btn => {
-
-        if (btn) {
-
-          btn.addEventListener(
-            'click',
-            (e) => {
-
-              e.preventDefault();
-
-              alert(
-                'Chức năng "Chat với AI Assistant": Mở cửa sổ chatbot hỗ trợ thông minh.'
-              );
-            }
-          );
-        }
-
-      }
-    );
-
-
     // --------------------------------------------------------
     // MODAL CHI TIẾT TICKET
     // --------------------------------------------------------
@@ -1579,41 +1554,177 @@ async function openTicketDetail(ticketId) {
 
 
 // ============================================================
+// RATING MODAL 
+// ============================================================
+
+const RATING_LABELS = {
+  1: 'Rất không hài lòng',
+  2: 'Không hài lòng',
+  3: 'Bình thường',
+  4: 'Hài lòng',
+  5: 'Rất hài lòng',
+};
+
+let _ratingTicketId = null;
+let _ratingValue = null;
+
+const ratingModal         = document.getElementById('ratingModal');
+const ratingModalTicketId = document.getElementById('ratingModalTicketId');
+const ratingStarsEl       = document.getElementById('ratingStars');
+const ratingLabelEl       = document.getElementById('ratingLabel');
+const ratingCommentEl     = document.getElementById('ratingComment');
+const btnSubmitRating     = document.getElementById('btnSubmitRating');
+const btnSkipRating       = document.getElementById('btnSkipRating');
+const btnRatingModalClose = document.getElementById('btnRatingModalClose');
+
+
+function resetRatingModal() {
+  _ratingValue = null;
+  if (ratingCommentEl) ratingCommentEl.value = '';
+  if (ratingLabelEl) ratingLabelEl.textContent = 'Chưa chọn';
+  if (btnSubmitRating) btnSubmitRating.disabled = true;
+  if (ratingStarsEl) {
+    ratingStarsEl.querySelectorAll('.rating-star').forEach(s => {
+      s.classList.remove('active');
+    });
+  }
+}
+
+function openRatingModal(ticketId) {
+  _ratingTicketId = ticketId;
+  if (ratingModalTicketId) ratingModalTicketId.textContent = '#' + ticketId;
+  resetRatingModal();
+  if (ratingModal) ratingModal.classList.add('show');
+}
+
+function closeRatingModal() {
+  if (ratingModal) ratingModal.classList.remove('show');
+  _ratingTicketId = null;
+}
+
+if (ratingStarsEl) {
+  ratingStarsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('.rating-star');
+    if (!btn) return;
+
+    const value = parseInt(btn.dataset.value, 10);
+    if (!value) return;
+
+    _ratingValue = value;
+
+    ratingStarsEl.querySelectorAll('.rating-star').forEach(s => {
+      const v = parseInt(s.dataset.value, 10);
+      s.classList.toggle('active', v <= value);
+    });
+
+    if (ratingLabelEl) ratingLabelEl.textContent = RATING_LABELS[value] || '';
+    if (btnSubmitRating) btnSubmitRating.disabled = false;
+  });
+}
+
+
+async function submitAccept(ticketId, rating, comment) {
+  const payload = {};
+  if (rating != null) payload.rating = rating;
+  if (comment && comment.trim()) payload.rating_comment = comment.trim();
+
+  const response = await fetch(
+    `http://127.0.0.1:5000/tickets/${ticketId}/accept`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    }
+  );
+
+  const result = await response.json();
+
+  if (response.status === 401) {
+    alert('Phiên đăng nhập đã hết hạn.');
+    window.location.href = '../login/login.html';
+    return false;
+  }
+
+  if (!response.ok || !result.success) {
+    alert(result.error?.message || 'Không thể xác nhận hoàn tất ticket.');
+    return false;
+  }
+
+  return true;
+}
+
+
+// ============================================================
 // ACCEPT TICKET — WAITING_CONFIRM → CLOSED
 // ============================================================
 
 async function acceptTicket(ticketId) {
-  if (!ticketId) { alert('Không xác định được Ticket.'); return; }
-
-  if (!confirm('Bạn xác nhận sự cố đã được xử lý hoàn tất?')) return;
-
-  try {
-    const response = await fetch(
-      `http://127.0.0.1:5000/tickets/${ticketId}/accept`,
-      { method: 'POST', credentials: 'include' }
-    );
-
-    const result = await response.json();
-
-    if (response.status === 401) {
-      alert('Phiên đăng nhập đã hết hạn.');
-      window.location.href = '../login/login.html';
-      return;
-    }
-
-    if (!response.ok || !result.success) {
-      alert(result.error?.message || 'Không thể xác nhận hoàn tất ticket.');
-      return;
-    }
-
-    alert(`Đã xác nhận hoàn tất ticket #${ticketId}.`);
-
-    await loadDashboardData();
-    await openTicketDetail(ticketId);
-  } catch (error) {
-    console.error('Accept ticket error:', error);
-    alert('Không thể kết nối đến Backend.');
+  if (!ticketId) {
+    alert('Không xác định được Ticket.');
+    return;
   }
+  openRatingModal(ticketId);
+}
+
+
+// Nút gửi đánh giá
+if (btnSubmitRating) {
+  btnSubmitRating.addEventListener('click', async () => {
+    if (_ratingTicketId == null) return;
+
+    const ticketId = _ratingTicketId;
+    const rating = _ratingValue;
+    const comment = ratingCommentEl ? ratingCommentEl.value : '';
+
+    btnSubmitRating.disabled = true;
+    btnSubmitRating.textContent = 'Đang gửi...';
+
+    const ok = await submitAccept(ticketId, rating, comment);
+
+    btnSubmitRating.textContent = 'Gửi đánh giá & hoàn tất';
+
+    if (ok) {
+      alert(`Đã xác nhận hoàn tất và gửi đánh giá ${rating}★ cho ticket #${ticketId}.`);
+      closeRatingModal();
+      await loadDashboardData();
+      await openTicketDetail(ticketId);
+    } else {
+      btnSubmitRating.disabled = false;
+    }
+  });
+}
+
+
+// Nút bỏ qua đánh giá
+if (btnSkipRating) {
+  btnSkipRating.addEventListener('click', async () => {
+    if (_ratingTicketId == null) return;
+
+    const ticketId = _ratingTicketId;
+    btnSkipRating.disabled = true;
+
+    const ok = await submitAccept(ticketId, null, null);
+
+    btnSkipRating.disabled = false;
+
+    if (ok) {
+      alert(`Đã xác nhận hoàn tất ticket #${ticketId} (không đánh giá).`);
+      closeRatingModal();
+      await loadDashboardData();
+      await openTicketDetail(ticketId);
+    }
+  });
+}
+
+
+// Đóng modal
+if (btnRatingModalClose) btnRatingModalClose.addEventListener('click', closeRatingModal);
+
+if (ratingModal) {
+  ratingModal.addEventListener('click', (e) => {
+    if (e.target === ratingModal) closeRatingModal();
+  });
 }
 
 // ============================================================
@@ -1665,3 +1776,193 @@ async function rejectTicket(ticketId) {
     alert('Không thể kết nối đến Backend.');
   }
 }
+// ============================================================
+// AI CHAT WIDGET
+// ============================================================
+
+(function initAiChatWidget() {
+  const AI_CHAT_SESSION_KEY = 'neu_helpdesk_ai_session';
+
+  const toggleBtn = document.getElementById('aiChatToggle');
+  const panel = document.getElementById('aiChatPanel');
+  const closeBtn = document.getElementById('aiChatClose');
+  const messagesEl = document.getElementById('aiChatMessages');
+  const inputEl = document.getElementById('aiChatInput');
+  const sendBtn = document.getElementById('aiChatSend');
+
+  const btnChatAi = document.getElementById('btnChatAi');
+  const btnSidebarChatAi = document.getElementById('btnSidebarChatAi');
+
+  if (!toggleBtn || !panel) return;
+
+  // Session
+  let sessionId = localStorage.getItem(AI_CHAT_SESSION_KEY);
+  if (!sessionId) {
+    sessionId = 'chat_' + Math.random().toString(36).slice(2, 11) + '_' + Date.now();
+    localStorage.setItem(AI_CHAT_SESSION_KEY, sessionId);
+  }
+
+  let isSending = false;
+
+  function openPanel() {
+    panel.classList.add('show');
+    setTimeout(() => inputEl && inputEl.focus(), 100);
+  }
+
+  function closePanel() {
+    panel.classList.remove('show');
+  }
+
+  function addMessage(text, type) {
+    const div = document.createElement('div');
+    div.className = 'ai-chat-msg ai-chat-msg-' + type;
+    div.textContent = text;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return div;
+  }
+
+  function addTicketButton(metadata) {
+    const btn = document.createElement('button');
+    btn.className = 'ai-chat-ticket-btn';
+    btn.textContent = '📋 Tạo ticket với thông tin này';
+    btn.addEventListener('click', () => {
+      prefillCreateTicketForm(metadata);
+      closePanel();
+    });
+    messagesEl.appendChild(btn);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function prefillCreateTicketForm(meta) {
+    const createModal = document.getElementById('createTicketModal');
+    if (createModal) createModal.classList.add('show');
+
+    const categoryLabels = {
+      PROJECTOR: 'Máy chiếu',
+      COMPUTER: 'Máy tính',
+      WIFI: 'Mạng',
+      MICROPHONE: 'Âm thanh',
+      AIR_CONDITIONER: 'Điều hòa',
+      ELECTRICITY: 'Điện',
+      FURNITURE: 'Bàn ghế',
+      CLEANING: 'Vệ sinh',
+      OTHER: 'Sự cố',
+    };
+
+    const titleEl = document.getElementById('newTitle');
+    if (titleEl && meta.category) {
+      const catLabel = categoryLabels[meta.category] || 'Sự cố';
+      const room = meta.room_code || '';
+      titleEl.value = `Sự cố ${catLabel}${room ? ' tại ' + room : ''}`;
+    }
+
+    const catEl = document.getElementById('newCategory');
+    if (catEl && meta.category) catEl.value = meta.category;
+
+    const prioEl = document.getElementById('newPriority');
+    if (prioEl && meta.priority) prioEl.value = meta.priority.toLowerCase();
+
+    if (meta.room_code) {
+      const roomEl = document.getElementById('newRoom');
+      if (roomEl) {
+        const match = Array.from(roomEl.options).find(o => o.value === meta.room_code);
+        if (match) roomEl.value = meta.room_code;
+      }
+
+      const buildingEl = document.getElementById('newBuilding');
+      if (buildingEl) {
+        if (meta.room_code.startsWith('A2')) buildingEl.value = 'Tòa nhà A2';
+        else if (meta.room_code.startsWith('A1')) buildingEl.value = 'Tòa nhà A1';
+        else if (meta.room_code.startsWith('B')) buildingEl.value = 'Tòa nhà B';
+      }
+    }
+  }
+
+  async function sendMessage() {
+    const query = inputEl.value.trim();
+    if (!query || isSending) return;
+
+    isSending = true;
+    sendBtn.disabled = true;
+    inputEl.disabled = true;
+
+    addMessage(query, 'user');
+    inputEl.value = '';
+
+    const loadingEl = addMessage('Đang suy nghĩ...', 'loading');
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/ai/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          query: query,
+          session_id: sessionId,
+          metadata: { source: 'chat_widget' },
+        }),
+      });
+
+      const result = await response.json();
+      loadingEl.remove();
+
+      if (response.status === 401) {
+        alert('Phiên đăng nhập đã hết hạn.');
+        window.location.href = '../login/login.html';
+        return;
+      }
+
+      if (!result.success) {
+        addMessage(result.error?.message || 'Có lỗi xảy ra. Vui lòng thử lại.', 'bot');
+        return;
+      }
+
+      const data = result.data;
+      addMessage(data.answer || '(Không có phản hồi)', 'bot');
+
+      const meta = data.metadata || {};
+
+      if (meta.needs_clarification) {
+      } else if (
+        meta.intent === 'report_issue' &&
+        meta.recommended_action === 'create_ticket'
+      ) {
+        addTicketButton(meta);
+      }
+    } catch (err) {
+      loadingEl.remove();
+      console.error('AI chat error:', err);
+      addMessage('Không thể kết nối đến AI. Vui lòng thử lại sau.', 'bot');
+    } finally {
+      isSending = false;
+      sendBtn.disabled = false;
+      inputEl.disabled = false;
+      inputEl.focus();
+    }
+  }
+
+  toggleBtn.addEventListener('click', openPanel);
+  closeBtn.addEventListener('click', closePanel);
+  sendBtn.addEventListener('click', sendMessage);
+
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  if (btnChatAi) {
+    btnChatAi.addEventListener('click', (e) => {
+      e.preventDefault();
+      openPanel();
+    });
+  }
+  if (btnSidebarChatAi) {
+    btnSidebarChatAi.addEventListener('click', (e) => {
+      e.preventDefault();
+      openPanel();
+    });
+  }
+})();

@@ -5,6 +5,8 @@ from models.room import Room
 from models.building import Building
 from models.ticket_history import TicketHistory
 import uuid
+from sqlalchemy import func
+
 
 
 def get_management_team(db, team_id):
@@ -67,7 +69,24 @@ def get_technician_workload(db, technician_id):
         "total_open": assigned + in_progress,
     }
 
-
+def get_technician_rating_stats(db, technician_id):
+    row = (
+        db.query(
+            func.avg(Ticket.rating).label("avg"),
+            func.count(Ticket.rating).label("count"),
+        )
+        .filter(
+            Ticket.assigned_to == technician_id,
+            Ticket.status == "CLOSED",
+            Ticket.rating.isnot(None),
+        )
+        .one()
+    )
+    avg = float(row.avg) if row.avg is not None else None
+    return {
+        "average": round(avg, 1) if avg is not None else None,
+        "count": int(row.count or 0),
+    }
 def get_management_dashboard(db, team_id):
     team = get_management_team(db, team_id)
 
@@ -80,10 +99,10 @@ def get_management_dashboard(db, team_id):
     )
 
     for technician in technicians:
-        technician["workload"] = get_technician_workload(
-            db,
-            technician["id"]
-        )
+        technician["workload"] = get_technician_workload(db, technician["id"])
+        rs = get_technician_rating_stats(db, technician["id"])
+        technician["rating"] = rs["average"]
+        technician["rating_count"] = rs["count"]
 
     unassigned_tickets = (
         db.query(Ticket)
@@ -389,16 +408,19 @@ def list_team_technicians(db, team_id):
         .order_by(User.name.asc())
         .all()
     )
-    return [
-        {
+    result = []
+    for t in techs:
+        rs = get_technician_rating_stats(db, t.id)
+        result.append({
             "id": t.id,
             "name": t.name,
             "email": t.email,
             "team_id": t.team_id,
             "is_on_duty": t.is_on_duty,
-        }
-        for t in techs
-    ]
+            "rating": rs["average"],
+            "rating_count": rs["count"],
+        })
+    return result
 
 
 def create_team_technician(db, team_id, username, email, password, name):

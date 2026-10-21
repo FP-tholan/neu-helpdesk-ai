@@ -864,7 +864,10 @@ function renderTechDashboard() {
     let actionBtnHtml = '';
 
 
-    if (status === 'assigned'|| status === 're_process') {
+    const isMine = ticket.assigned_to === currentTech.idNumber;
+    const canClaim = !ticket.assigned_to || isMine;
+
+    if ((status === 'assigned' || status === 're_process') && canClaim) {
 
       actionBtnHtml = `
         <button
@@ -874,15 +877,19 @@ function renderTechDashboard() {
         </button>
       `;
 
+    } else if (status === 'assigned' || status === 're_process') {
+
+      // Ticket đã được giao cho KTV khác — không hiện nút cho người khác
+      actionBtnHtml = `
+        <span style="font-size:12px;color:#94a3b8;">
+          Chờ KTV khác nhận
+        </span>
+      `;
+
     } else {
 
       actionBtnHtml = `
-        <span
-          style="
-            font-size:12px;
-            color:#64748b;
-          "
-        >
+        <span style="font-size:12px;color:#64748b;">
           Đang theo dõi
         </span>
       `;
@@ -995,65 +1002,56 @@ function renderTechDashboard() {
    ========================================================= */
 
 async function claimTicket(ticketId) {
+  const btn = document.querySelector(`.btn-claim[data-id="${ticketId}"]`);
 
-  try {
-
-    const response =
-      await fetch(
-        `${API_BASE_URL}/technician/tickets/${ticketId}/accept`,
-        {
-          method: 'POST',
-          credentials: 'include'
-        }
-      );
-
-
-    const result =
-      await response.json();
-
-
-    if (response.status === 401) {
-
-      window.location.href =
-        '../login/login.html';
-
-      return;
-    }
-
-
-    if (!response.ok || !result.success) {
-
-      alert(
-        result.error?.message ||
-        'Không thể nhận xử lý ticket.'
-      );
-
-      return;
-    }
-
-
-    alert(
-      `Bạn đã nhận xử lý ticket #${ticketId}! Trạng thái chuyển sang "Đang xử lý".`
-    );
-
-
-    // Load lại dữ liệu từ Database
-    await loadTechnicianDashboard();
-
-
-  } catch (error) {
-
-    console.error(
-      'Lỗi nhận xử lý ticket:',
-      error
-    );
-
-    alert(
-      'Không thể kết nối đến server.'
-    );
-
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Đang nhận...';
   }
 
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/technician/tickets/${ticketId}/accept`,
+      { method: 'POST', credentials: 'include' }
+    );
+
+    const result = await response.json();
+
+    if (response.status === 401) {
+      window.location.href = '../login/login.html';
+      return;
+    }
+
+    if (!response.ok || !result.success) {
+      // Phân biệt lỗi để thông báo đúng ngữ cảnh
+      const code = result.error?.code;
+      let msg = result.error?.message || 'Không thể nhận xử lý ticket.';
+
+      if (code === 'TICKET_ALREADY_ASSIGNED') {
+        msg = 'Ticket đã được kỹ thuật viên khác nhận.';
+      } else if (code === 'TICKET_NOT_ASSIGNABLE') {
+        msg = 'Ticket không còn ở trạng thái có thể nhận xử lý.';
+      }
+
+      alert(msg);
+      return;
+    }
+
+    alert(`Bạn đã nhận xử lý ticket #${ticketId}! Trạng thái chuyển sang "Đang xử lý".`);
+
+    // Reload fresh data → nút sẽ tự biến mất (status IN_PROGRESS)
+    await loadTechnicianDashboard();
+
+  } catch (error) {
+    console.error('Lỗi nhận xử lý ticket:', error);
+    alert('Không thể kết nối đến server.');
+
+    // Rollback nút nếu request thất bại
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Nhận xử lý';
+    }
+  }
 }
 
 

@@ -98,19 +98,31 @@ def accept_ticket(ticket_id):
     if auth_error:
         return auth_error
 
+    data = request.get_json(silent=True) or {}
+    rating = data.get("rating")
+    rating_comment = data.get("rating_comment")
+
     db = SessionLocal()
     try:
-        result = accept_user_ticket(db, user_id, ticket_id)
+        result = accept_user_ticket(db, user_id, ticket_id, rating, rating_comment)
         if result is None:
             return jsonify({
                 "success": False,
                 "error": {"code": "TICKET_NOT_FOUND", "message": "Không tìm thấy ticket"},
             }), 404
         if not result["success"]:
+            messages = {
+                "TICKET_NOT_WAITING_CONFIRM": "Ticket chưa ở trạng thái chờ nghiệm thu",
+                "INVALID_RATING": "Đánh giá phải từ 1 đến 5 sao",
+                "INVALID_COMMENT": "Nhận xét không hợp lệ",
+                "COMMENT_TOO_LONG": "Nhận xét không được vượt quá 500 ký tự",
+            }
             return jsonify({
                 "success": False,
-                "error": {"code": result["error"],
-                          "message": "Ticket chưa ở trạng thái chờ nghiệm thu"},
+                "error": {
+                    "code": result["error"],
+                    "message": messages.get(result["error"], "Không thể xác nhận"),
+                },
             }), 400
         return jsonify({"success": True, "data": result["data"]}), 200
     finally:

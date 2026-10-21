@@ -9,25 +9,19 @@ from api.dashboard import dashboard_bp
 from api.tickets import ticket_bp
 from api.technician import technician_bp
 from api.management import management_bp
-from api.admin import admin_bp   # ← sẽ tạo mới
+from api.admin import admin_bp   
 from api.admin_users import admin_users_bp
-
+from api.ai import ai_bp
 
 load_dotenv()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
 
-CORS(
-    app,
-    supports_credentials=True,
-    origins=[
-        "http://127.0.0.1:5500",
-        "http://localhost:5500",
-        "http://127.0.0.1:8000",
-        "http://localhost:8000",
-    ],
-)
+CORS(app, supports_credentials=True, origins=[
+    "http://127.0.0.1:5500", "http://localhost:5500",
+    "http://127.0.0.1:8000", "http://localhost:8000",
+])
 
 app.register_blueprint(auth_bp,       url_prefix="/auth")
 app.register_blueprint(dashboard_bp,  url_prefix="/api")
@@ -36,6 +30,7 @@ app.register_blueprint(technician_bp, url_prefix="/technician")
 app.register_blueprint(management_bp, url_prefix="/management")
 app.register_blueprint(admin_bp,      url_prefix="/admin")
 app.register_blueprint(admin_users_bp,url_prefix="/admin/users")
+app.register_blueprint(ai_bp, url_prefix="/ai")
 
 
 

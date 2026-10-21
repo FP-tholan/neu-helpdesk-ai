@@ -14,11 +14,35 @@ admin_bp = Blueprint("admin", __name__)
 
 
 def require_admin():
-    if session.get("user_id") is None:
-        return jsonify({"success": False, "error": "UNAUTHORIZED"}), 401
-    if session.get("role") != "ADMIN":
-        return jsonify({"success": False, "error": "FORBIDDEN"}), 403
-    return None
+    user_id = session.get("user_id")
+    if user_id is None:
+        return jsonify({
+            "success": False,
+            "error": {"code": "UNAUTHORIZED", "message": "Bạn chưa đăng nhập"}
+        }), 401
+
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None or user.is_locked:
+            session.clear()
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "ACCOUNT_LOCKED",
+                    "message": "Tài khoản đã bị khóa. Vui lòng đăng nhập lại."
+                }
+            }), 401
+
+        if user.role != "ADMIN":
+            return jsonify({
+                "success": False,
+                "error": {"code": "FORBIDDEN", "message": "Bạn không có quyền quản trị"}
+            }), 403
+
+        return None
+    finally:
+        db.close()
 
 
 @admin_bp.get("/tickets")
@@ -71,8 +95,12 @@ def admin_update_ticket(ticket_id):
     try:
         ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
         if ticket is None:
-            return jsonify({"success": False, "error": "TICKET_NOT_FOUND"}), 404
+            return jsonify({
+                "success": False,
+                "error": {"code": "TICKET_NOT_FOUND", "message": "Không tìm thấy ticket"}
+            }), 404
 
+        old_status = ticket.status         
         changed = []
 
         if "priority" in data and data["priority"] != ticket.priority:
@@ -94,14 +122,17 @@ def admin_update_ticket(ticket_id):
             db.add(TicketHistory(
                 id=f"HIS-{uuid.uuid4()}",
                 ticket_id=ticket.id,
-                from_status=ticket.status,
+                from_status=old_status,          
                 to_status=ticket.status,
                 note="Admin cập nhật: " + "; ".join(changed),
                 updated_by=session.get("user_id"),
             ))
             db.commit()
 
-        return jsonify({"success": True, "data": {"id": ticket.id, "changes": changed}}), 200
+        return jsonify({
+            "success": True,
+            "data": {"id": ticket.id, "changes": changed}
+        }), 200
     finally:
         db.close()
 

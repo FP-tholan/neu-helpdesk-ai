@@ -223,9 +223,10 @@ def get_user_ticket_detail(db, user_id, ticket_id):
 # ACCEPT / REJECT
 # =============================================================
 
-def accept_user_ticket(db, user_id, ticket_id):
+def accept_user_ticket(db, user_id, ticket_id, rating=None, rating_comment=None):
     """
     User accept ticket ở WAITING_CONFIRM → CLOSED.
+    Có thể kèm rating (1-5) + comment tuỳ chọn.
     """
     ticket = (
         db.query(Ticket)
@@ -238,22 +239,48 @@ def accept_user_ticket(db, user_id, ticket_id):
     if ticket.status != "WAITING_CONFIRM":
         return {"success": False, "error": "TICKET_NOT_WAITING_CONFIRM"}
 
+    if rating is not None:
+        if not isinstance(rating, int) or rating < 1 or rating > 5:
+            return {"success": False, "error": "INVALID_RATING"}
+
+    if rating_comment is not None:
+        if not isinstance(rating_comment, str):
+            return {"success": False, "error": "INVALID_COMMENT"}
+        if len(rating_comment) > 500:
+            return {"success": False, "error": "COMMENT_TOO_LONG"}
+
     old = ticket.status
     ticket.status = "CLOSED"
+
+    if rating is not None:
+        ticket.rating = rating
+        ticket.rating_comment = (rating_comment or "").strip() or None
+        ticket.rated_at = datetime.utcnow()
+
+    note = "Người báo xác nhận sự cố đã xử lý xong."
+    if rating is not None:
+        note += f" Đánh giá: {rating}/5 sao."
+        if ticket.rating_comment:
+            note += f" Nhận xét: {ticket.rating_comment}"
 
     db.add(TicketHistory(
         id=f"HIS-{uuid.uuid4()}",
         ticket_id=ticket.id,
         from_status=old,
         to_status="CLOSED",
-        note="Người báo xác nhận sự cố đã xử lý xong.",
+        note=note,
         updated_by=user_id,
     ))
     db.commit()
 
     return {
         "success": True,
-        "data": {"ticket_id": ticket.id, "old_status": old, "new_status": ticket.status},
+        "data": {
+            "ticket_id": ticket.id,
+            "old_status": old,
+            "new_status": ticket.status,
+            "rating": ticket.rating,
+        },
     }
 
 

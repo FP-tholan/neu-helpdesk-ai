@@ -204,14 +204,20 @@ function renderTechsTable() {
   const tbody = document.getElementById('techsTableBody');
   if (!tbody) return;
 
+  // Workload có trong /management/dashboard, không có trong /management/technicians
+  // → ưu tiên dashboard, fallback technicians (để bảng vẫn có dữ liệu nếu dashboard lỗi)
+  const source = (_cacheDashboard?.technicians?.length
+    ? _cacheDashboard.technicians
+    : _cacheTechnicians);
+
   const q = (document.getElementById('searchTechInput')?.value || '')
     .toLowerCase().trim();
 
-  const filtered = _cacheTechnicians.filter(t => {
+  const filtered = source.filter(t => {
     if (!q) return true;
     return (
-      (t.name || '').toLowerCase().includes(q) ||
-      (t.id || '').toLowerCase().includes(q) ||
+      (t.name  || '').toLowerCase().includes(q) ||
+      (t.id    || '').toLowerCase().includes(q) ||
       (t.email || '').toLowerCase().includes(q)
     );
   });
@@ -226,6 +232,35 @@ function renderTechsTable() {
   filtered.forEach(tech => {
     const tr = document.createElement('tr');
     const initials = (tech.name || 'KTV').trim().split(' ').pop().substring(0, 2).toUpperCase();
+
+    // --- Workload (từ dashboard) ---
+    const wl = tech.workload || { assigned: 0, in_progress: 0, total_open: 0 };
+    const wlTotal   = wl.total_open   || 0;
+    const wlAssigned = wl.assigned    || 0;
+    const wlProgress = wl.in_progress || 0;
+
+    // Màu + độ dài thanh theo tải
+    const wlColor = wlTotal >= 4 ? '#dc2626' : (wlTotal >= 2 ? '#f59e0b' : '#10b981');
+    const wlWidth = Math.min(wlTotal * 20, 100);   // 5 việc = full
+
+    const workloadCellHtml = `
+      <div class="workload-container">
+        <div class="workload-text">
+          <span><strong>${wlTotal}</strong> việc</span>
+          <span>${wlAssigned} chờ · ${wlProgress} đang làm</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill"
+               style="width:${wlWidth}%;background:${wlColor};"></div>
+        </div>
+      </div>
+    `;
+
+    // --- Đánh giá: backend chưa có field rating, tạm hiển thị placeholder ---
+    const ratingCellHtml = tech.rating != null
+      ? `<span style="color:#f59e0b;font-weight:600;">★ ${Number(tech.rating).toFixed(1)}</span>
+         <span style="font-size:11px;color:#94a3b8;">/5</span>`
+      : `<span style="font-size:12px;color:#94a3b8;" title="Chưa có dữ liệu đánh giá">—</span>`;
 
     tr.innerHTML = `
       <td><strong>#${tech.id}</strong></td>
@@ -251,12 +286,15 @@ function renderTechsTable() {
           </span>
         </div>
       </td>
-      <td>—</td>
-      <td>—</td>
+      <td>${workloadCellHtml}</td>
+      <td>${ratingCellHtml}</td>
       <td>
         <button class="btn btn-secondary"
-                style="padding:4px 10px;font-size:11.5px;"
-                onclick="alert('Chưa triển khai phân quyền chi tiết.');">Phân quyền</button>
+                style="padding:4px 10px;font-size:11.5px;opacity:.6;cursor:not-allowed;"
+                disabled
+                title="Chức năng phân quyền chi tiết đang phát triển">
+          Phân quyền
+        </button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -394,7 +432,7 @@ function renderTeamTicketsTable() {
 
 window.openAssignModal = function(ticketId, mode) {
   pendingAssignTicketId = ticketId;
-  pendingAssignMode = mode || 'assign';      // ⭐ THÊM DÒNG NÀY
+  pendingAssignMode = mode || 'assign';      
 
   // Tra title từ cache
   let ticketTitle = '';
@@ -406,7 +444,7 @@ window.openAssignModal = function(ticketId, mode) {
   document.getElementById('assignModalTicketId').textContent = '#' + ticketId;
   document.getElementById('assignModalTicketTitle').textContent = ticketTitle || '';
 
-  // ⭐ Đổi title modal theo mode
+  // Đổi title modal theo mode
   const modalTitle = document.querySelector('#assignModal .modal-header h2');
   if (modalTitle) {
     modalTitle.textContent = pendingAssignMode === 'reassign'
@@ -417,9 +455,12 @@ window.openAssignModal = function(ticketId, mode) {
   const select = document.getElementById('assignTechSelect');
   select.innerHTML = '';
 
-  let active = _cacheTechnicians.filter(t => t.is_on_duty);
+  const sourceForModal = (_cacheTechnicians?.length
+    ? _cacheTechnicians
+    : (_cacheDashboard?.technicians || []));
+  let active = sourceForModal.filter(t => t.is_on_duty);
 
-  // ⭐ Nếu reassign, bỏ KTV hiện tại khỏi dropdown (tránh lỗi SAME_TECHNICIAN)
+  // Nếu reassign, bỏ KTV hiện tại khỏi dropdown (tránh lỗi SAME_TECHNICIAN)
   if (pendingAssignMode === 'reassign') {
     const ticket = fromAll || fromUnassigned;
     const currentTechId = ticket?.assigned_to?.id;

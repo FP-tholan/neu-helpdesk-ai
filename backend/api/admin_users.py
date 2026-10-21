@@ -6,26 +6,38 @@ admin_users_bp = Blueprint("admin_users", __name__)
 
 
 def require_system_admin():
-    """Chỉ cho phép Admin hệ thống quản lý tài khoản."""
-    if session.get("user_id") is None:
+    """Chỉ cho phép Admin hệ thống (còn active) quản lý tài khoản."""
+    user_id = session.get("user_id")
+    if user_id is None:
         return jsonify({
             "success": False,
-            "error": {
-                "code": "UNAUTHORIZED",
-                "message": "Bạn chưa đăng nhập"
-            }
+            "error": {"code": "UNAUTHORIZED", "message": "Bạn chưa đăng nhập"}
         }), 401
 
-    if session.get("role") != "ADMIN":
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "FORBIDDEN",
-                "message": "Bạn không có quyền quản lý tài khoản"
-            }
-        }), 403
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
 
-    return None
+        # Bị khóa giữa phiên → kick session
+        if user is None or user.is_locked:
+            session.clear()
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "ACCOUNT_LOCKED",
+                    "message": "Tài khoản đã bị khóa. Vui lòng đăng nhập lại."
+                }
+            }), 401
+
+        if user.role != "ADMIN":
+            return jsonify({
+                "success": False,
+                "error": {"code": "FORBIDDEN", "message": "Bạn không có quyền quản lý tài khoản"}
+            }), 403
+
+        return None
+    finally:
+        db.close()
 
 
 @admin_users_bp.get("")

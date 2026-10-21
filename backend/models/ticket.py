@@ -1,6 +1,5 @@
 from datetime import datetime
-
-from sqlalchemy import DateTime, ForeignKey, String, Text
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database.db import Base
@@ -74,4 +73,16 @@ class Ticket(Base):
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
         nullable=False
+    )
+    rating: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True
+    )
+    rating_comment: Mapped[str | None] = mapped_column(
+        Text, 
+        nullable=True
+    )
+    rated_at: Mapped[datetime | None] = mapped_column(
+        DateTime, 
+        nullable=True
     )

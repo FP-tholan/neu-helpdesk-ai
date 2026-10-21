@@ -314,7 +314,6 @@ def get_technician_ticket_detail(db, technician_id, ticket_id):
 
 
 def accept_technician_ticket(db, technician_id, ticket_id):
-
     technician = (
         db.query(User)
         .filter(
@@ -336,19 +335,19 @@ def accept_technician_ticket(db, technician_id, ticket_id):
     if ticket is None:
         return None
 
-    # Ticket phải thuộc Team của Technician
+    # 1. Ticket phải thuộc Team của Technician
     if ticket.assigned_team_id != technician.team_id:
         return {
             "success": False,
             "error": "TICKET_NOT_ASSIGNED_TO_TEAM"
         }
 
-    # Ticket phải đang chờ nhận
+    # 2. Ticket phải đang chờ nhận
     if ticket.status not in ("ASSIGNED", "RE_PROCESS"):
         return {"success": False, "error": "TICKET_NOT_ASSIGNABLE"}
 
-    # Không cho nhận nếu đã có người xử lý
-    if ticket.assigned_to is not None:
+    # 3. Nếu đã có KTV KHÁC đứng tên xử lý → chặn
+    if ticket.assigned_to is not None and ticket.assigned_to != technician_id:
         return {
             "success": False,
             "error": "TICKET_ALREADY_ASSIGNED"

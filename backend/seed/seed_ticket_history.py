@@ -128,6 +128,62 @@ def seed_ticket_history():
                     "2026-09-15T09:00:00"
                 ),
             ),
+            TicketHistory(
+                id="HIS-005-01",
+                ticket_id="TCK-20260910-005",
+                from_status=None,
+                to_status="NEW",
+                note="Ticket được tạo.",
+                updated_by="USR_STUDENT_01",
+                created_at=datetime.fromisoformat("2026-09-10T09:00:00"),
+            ),
+            TicketHistory(
+                id="HIS-005-02",
+                ticket_id="TCK-20260910-005",
+                from_status="WAITING_CONFIRM",
+                to_status="CLOSED",
+                note="Người báo xác nhận. Đánh giá: 4/5 sao.",
+                updated_by="USR_STUDENT_01",
+                created_at=datetime.fromisoformat("2026-09-10T11:00:00"),
+            ),
+
+            TicketHistory(
+                id="HIS-006-01",
+                ticket_id="TCK-20260911-006",
+                from_status=None,
+                to_status="NEW",
+                note="Ticket được tạo.",
+                updated_by="USR_LECTURER_01",
+                created_at=datetime.fromisoformat("2026-09-11T14:00:00"),
+            ),
+            TicketHistory(
+                id="HIS-006-02",
+                ticket_id="TCK-20260911-006",
+                from_status="WAITING_CONFIRM",
+                to_status="CLOSED",
+                note="Người báo xác nhận. Đánh giá: 5/5 sao.",
+                updated_by="USR_LECTURER_01",
+                created_at=datetime.fromisoformat("2026-09-11T16:00:00"),
+            ),
+
+            TicketHistory(
+                id="HIS-007-01",
+                ticket_id="TCK-20260912-007",
+                from_status=None,
+                to_status="NEW",
+                note="Ticket được tạo.",
+                updated_by="USR_STUDENT_01",
+                created_at=datetime.fromisoformat("2026-09-12T08:00:00"),
+            ),
+            TicketHistory(
+                id="HIS-007-02",
+                ticket_id="TCK-20260912-007",
+                from_status="WAITING_CONFIRM",
+                to_status="CLOSED",
+                note="Người báo xác nhận. Đánh giá: 3/5 sao.",
+                updated_by="USR_STUDENT_01",
+                created_at=datetime.fromisoformat("2026-09-12T09:30:00"),
+            ),
         ]
 
         for history in histories:
