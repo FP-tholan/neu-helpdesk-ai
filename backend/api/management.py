@@ -502,3 +502,128 @@ def management_list_tickets():
         return jsonify({"success": True, "data": tickets}), 200
     finally:
         db.close()
+# ── Settings (mode) ──────────────────────────────────────
+@management_bp.get("/settings")
+def management_get_settings():
+    user_id = session.get("user_id")
+    if user_id is None:
+        return jsonify({"success": False, "error": "UNAUTHORIZED"}), 401
+    if session.get("role") != "TEAM_LEAD":
+        return jsonify({"success": False, "error": "FORBIDDEN"}), 403
+
+    db = SessionLocal()
+    try:
+        from services.management_service import get_team_lead_settings
+        return jsonify({"success": True, "data": get_team_lead_settings(db)}), 200
+    finally:
+        db.close()
+
+
+@management_bp.put("/settings")
+def management_update_settings():
+    user_id = session.get("user_id")
+    if user_id is None:
+        return jsonify({"success": False, "error": "UNAUTHORIZED"}), 401
+    if session.get("role") != "TEAM_LEAD":
+        return jsonify({"success": False, "error": "FORBIDDEN"}), 403
+
+    data = request.get_json(silent=True) or {}
+    mode = data.get("dispatch_mode")
+    if mode not in (1, 2):
+        return jsonify({"success": False, "error": "INVALID_MODE"}), 400
+
+    db = SessionLocal()
+    try:
+        from services.management_service import update_team_lead_settings
+        result = update_team_lead_settings(db, mode)
+        return jsonify(result), (200 if result["success"] else 400)
+    finally:
+        db.close()
+
+
+# ── Verify / Reject / Priority ───────────────────────────
+@management_bp.post("/tickets/<ticket_id>/verify")
+def management_verify_ticket(ticket_id):
+    user_id = session.get("user_id")
+    if user_id is None:
+        return jsonify({"success": False, "error": "UNAUTHORIZED"}), 401
+    if session.get("role") != "TEAM_LEAD":
+        return jsonify({"success": False, "error": "FORBIDDEN"}), 403
+
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None or user.team_id is None:
+            return jsonify({"success": False, "error": "TEAM_NOT_FOUND"}), 404
+
+        from services.management_service import team_lead_verify_ticket
+        result = team_lead_verify_ticket(db, user.team_id, ticket_id, user_id)
+        status_map = {
+            "TICKET_NOT_FOUND": 404,
+            "FORBIDDEN": 403,
+            "TICKET_NOT_WAITING_CONFIRM": 400,
+        }
+        return jsonify(result), (200 if result["success"] else status_map.get(result["error"], 400))
+    finally:
+        db.close()
+
+
+@management_bp.post("/tickets/<ticket_id>/reject")
+def management_reject_ticket(ticket_id):
+    user_id = session.get("user_id")
+    if user_id is None:
+        return jsonify({"success": False, "error": "UNAUTHORIZED"}), 401
+    if session.get("role") != "TEAM_LEAD":
+        return jsonify({"success": False, "error": "FORBIDDEN"}), 403
+
+    data = request.get_json(silent=True) or {}
+    reason = data.get("reason")
+
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None or user.team_id is None:
+            return jsonify({"success": False, "error": "TEAM_NOT_FOUND"}), 404
+
+        from services.management_service import team_lead_reject_ticket
+        result = team_lead_reject_ticket(db, user.team_id, ticket_id, user_id, reason)
+        status_map = {
+            "TICKET_NOT_FOUND": 404,
+            "FORBIDDEN": 403,
+            "TICKET_NOT_WAITING_CONFIRM": 400,
+            "REASON_REQUIRED": 400,
+        }
+        return jsonify(result), (200 if result["success"] else status_map.get(result["error"], 400))
+    finally:
+        db.close()
+
+
+@management_bp.patch("/tickets/<ticket_id>/priority")
+def management_set_priority(ticket_id):
+    user_id = session.get("user_id")
+    if user_id is None:
+        return jsonify({"success": False, "error": "UNAUTHORIZED"}), 401
+    if session.get("role") != "TEAM_LEAD":
+        return jsonify({"success": False, "error": "FORBIDDEN"}), 403
+
+    data = request.get_json(silent=True) or {}
+    priority = (data.get("priority") or "").upper()
+
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None or user.team_id is None:
+            return jsonify({"success": False, "error": "TEAM_NOT_FOUND"}), 404
+
+        from services.management_service import team_lead_set_priority
+        result = team_lead_set_priority(
+            db, user.team_id, ticket_id, user_id, priority,
+        )
+        status_map = {
+            "TICKET_NOT_FOUND": 404,
+            "FORBIDDEN": 403,
+            "INVALID_PRIORITY": 400,
+        }
+        return jsonify(result), (200 if result["success"] else status_map.get(result["error"], 400))
+    finally:
+        db.close()        

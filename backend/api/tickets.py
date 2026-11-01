@@ -3,9 +3,8 @@ from flask import Blueprint, jsonify, request, session
 from database.db import SessionLocal
 from services.ticket_service import (
     get_user_ticket_detail,
-    accept_user_ticket,
-    reject_user_ticket,
     create_user_ticket,
+    rate_user_ticket,
 )
 
 
@@ -40,14 +39,13 @@ def create_ticket():
     building_name = data.get("building")
     room_code = data.get("room")
     category = data.get("category")
-    priority = data.get("priority")
     description = data.get("description")
 
     db = SessionLocal()
     try:
         result = create_user_ticket(
             db, user_id, title, building_name, room_code,
-            category, priority, description,
+            category, description,
         )
         if not result["success"]:
             messages = {
@@ -92,8 +90,8 @@ def get_ticket_detail(ticket_id):
         db.close()
 
 
-@ticket_bp.route("/<ticket_id>/accept", methods=["POST"])
-def accept_ticket(ticket_id):
+@ticket_bp.route("/<ticket_id>/rate", methods=["POST"])
+def rate_ticket(ticket_id):
     user_id, auth_error = require_reporter_user()
     if auth_error:
         return auth_error
@@ -104,7 +102,7 @@ def accept_ticket(ticket_id):
 
     db = SessionLocal()
     try:
-        result = accept_user_ticket(db, user_id, ticket_id, rating, rating_comment)
+        result = rate_user_ticket(db, user_id, ticket_id, rating, rating_comment)
         if result is None:
             return jsonify({
                 "success": False,
@@ -112,7 +110,7 @@ def accept_ticket(ticket_id):
             }), 404
         if not result["success"]:
             messages = {
-                "TICKET_NOT_WAITING_CONFIRM": "Ticket chưa ở trạng thái chờ nghiệm thu",
+                "TICKET_NOT_RATEABLE": "Ticket chưa ở trạng thái có thể đánh giá",
                 "INVALID_RATING": "Đánh giá phải từ 1 đến 5 sao",
                 "INVALID_COMMENT": "Nhận xét không hợp lệ",
                 "COMMENT_TOO_LONG": "Nhận xét không được vượt quá 500 ký tự",
@@ -121,39 +119,8 @@ def accept_ticket(ticket_id):
                 "success": False,
                 "error": {
                     "code": result["error"],
-                    "message": messages.get(result["error"], "Không thể xác nhận"),
+                    "message": messages.get(result["error"], "Không thể đánh giá"),
                 },
-            }), 400
-        return jsonify({"success": True, "data": result["data"]}), 200
-    finally:
-        db.close()
-
-
-@ticket_bp.route("/<ticket_id>/reject", methods=["POST"])
-def reject_ticket(ticket_id):
-    user_id, auth_error = require_reporter_user()
-    if auth_error:
-        return auth_error
-
-    data = request.get_json(silent=True) or {}
-    reason = data.get("reason")
-
-    db = SessionLocal()
-    try:
-        result = reject_user_ticket(db, user_id, ticket_id, reason)
-        if result is None:
-            return jsonify({
-                "success": False,
-                "error": {"code": "TICKET_NOT_FOUND", "message": "Không tìm thấy ticket"},
-            }), 404
-        if not result["success"]:
-            if result["error"] == "REASON_REQUIRED":
-                msg = "Vui lòng nhập lý do từ chối"
-            else:
-                msg = "Ticket chưa ở trạng thái chờ nghiệm thu"
-            return jsonify({
-                "success": False,
-                "error": {"code": result["error"], "message": msg},
             }), 400
         return jsonify({"success": True, "data": result["data"]}), 200
     finally:

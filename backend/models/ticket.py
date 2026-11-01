@@ -86,3 +86,9 @@ class Ticket(Base):
         DateTime, 
         nullable=True
     )
+    verified_by: Mapped[str | None] = mapped_column(
+        String(50), nullable=True
+    )
+    verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime, nullable=True
+    )

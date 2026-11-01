@@ -1,3 +1,5 @@
+import logging
+import threading
 import uuid
 from datetime import datetime
 
@@ -9,6 +11,26 @@ from models.building import Building
 from models.team import Team
 from models.dispatch_rule import DispatchRule
 
+from database.db import SessionLocal
+from services.system_setting_service import get_dispatch_mode
+from services.auto_dispatch_service import (
+    ai_determine_priority,
+    find_best_technician,
+    get_effective_priority,
+)
+
+logger = logging.getLogger(__name__)
+
+_PRIORITY_ORDER = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+
+# Keyword-based priority — deterministic, không phụ thuộc AI
+_KW_CRITICAL = (
+    "cháy", "khét", "khói", "nổ", "sập",
+    "điện giật", "rò điện", "ngập", "bốc lửa",
+)
+_KW_HIGH = ("đang học", "đang thi", "khẩn", "gấp", "ngay")
+_KW_LOW  = ("nhẹ", "không gấp", "khi nào cũng được")
+
 
 ALLOWED_PRIORITIES = {"LOW", "MEDIUM", "HIGH", "CRITICAL"}
 
@@ -18,7 +40,72 @@ ALLOWED_CATEGORIES = {
     "CLEANING", "OTHER",
 }
 
+def _keyword_priority(title: str, description: str) -> str:
+    """Priority dựa trên keyword — luôn chạy được, không cần AI."""
+    text = f"{title} {description}".lower()
+    if any(k in text for k in _KW_CRITICAL):
+        return "CRITICAL"
+    if any(k in text for k in _KW_HIGH):
+        return "HIGH"
+    if any(k in text for k in _KW_LOW):
+        return "LOW"
+    return "MEDIUM"
 
+
+def _combine_priority(a: str, b: str) -> str:
+    """Trả priority cao hơn — KHÔNG BAO GIỜ downgrade."""
+    if a not in _PRIORITY_ORDER:
+        return b if b in _PRIORITY_ORDER else "MEDIUM"
+    if b not in _PRIORITY_ORDER:
+        return a
+    return _PRIORITY_ORDER[max(_PRIORITY_ORDER.index(a), _PRIORITY_ORDER.index(b))]
+
+
+def _async_ai_priority_update(
+    ticket_id: str,
+    title: str,
+    description: str,
+    metadata: dict,
+    kw_prio: str,
+):
+    """
+    Chạy trong background thread — không block user request.
+    Chỉ UPDATE priority nếu AI cho giá trị CAO HƠN keyword.
+    """
+    try:
+        ai_prio = ai_determine_priority(title, description, metadata)
+        if not ai_prio:
+            return
+
+        final_prio = _combine_priority(ai_prio, kw_prio)
+        if final_prio == kw_prio:
+            return  # Không cần update
+
+        db = SessionLocal()
+        try:
+            ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
+            if ticket is None or ticket.priority == final_prio:
+                return
+
+            old_prio = ticket.priority
+            ticket.priority = final_prio
+            db.add(TicketHistory(
+                id=f"HIS-{uuid.uuid4()}",
+                ticket_id=ticket.id,
+                from_status=ticket.status,
+                to_status=ticket.status,
+                note=f"Hệ thống AI nâng priority: {old_prio} → {final_prio}.",
+                updated_by="SYSTEM_AI",
+            ))
+            db.commit()
+            logger.info(
+                "AI priority boosted %s: %s → %s",
+                ticket_id, old_prio, final_prio,
+            )
+        finally:
+            db.close()
+    except Exception as e:
+        logger.warning("async AI priority failed for %s: %s", ticket_id, e)
 # =============================================================
 # DISPATCH
 # =============================================================
@@ -53,19 +140,14 @@ def resolve_team_for_ticket(db, category, building_id):
 
 def create_user_ticket(
     db, user_id, title, building_name, room_code,
-    category, priority, description
+    category, description,
 ):
     if not title or not title.strip():
         return {"success": False, "error": "TITLE_REQUIRED"}
-
     if not description or not description.strip():
         return {"success": False, "error": "DESCRIPTION_REQUIRED"}
-
     if category not in ALLOWED_CATEGORIES:
         return {"success": False, "error": "INVALID_CATEGORY"}
-
-    if priority not in ALLOWED_PRIORITIES:
-        return {"success": False, "error": "INVALID_PRIORITY"}
 
     building = db.query(Building).filter(Building.name == building_name).first()
     if building is None:
@@ -82,11 +164,22 @@ def create_user_ticket(
     team_id = resolve_team_for_ticket(db, category, building.id)
     if team_id is None:
         return {"success": False, "error": "DISPATCH_FAILED"}
-
     team = db.query(Team).filter(Team.id == team_id).first()
     if team is None:
         return {"success": False, "error": "TEAM_NOT_FOUND"}
 
+    # ── Priority theo mode ────────────────────────────────
+    mode = get_dispatch_mode(db)
+    kw_prio = _keyword_priority(title, description)
+
+    if mode == 2:
+        # Auto: keyword baseline trả NGAY, AI update ngầm sau
+        priority = kw_prio
+    else:
+        # Manual: LUÔN LOW — Team Lead tự set sau
+        priority = "LOW"
+
+    # ── Tạo ticket ────────────────────────────────────────
     today = datetime.utcnow().strftime("%Y%m%d")
     prefix = f"TCK-{today}-"
     latest = (
@@ -103,7 +196,6 @@ def create_user_ticket(
             next_number = 1
     ticket_id = f"{prefix}{next_number:03d}"
 
-    # Trạng thái khởi tạo: NEW
     ticket = Ticket(
         id=ticket_id,
         title=title.strip(),
@@ -118,7 +210,6 @@ def create_user_ticket(
     )
     db.add(ticket)
 
-    # History 1: tạo ticket
     db.add(TicketHistory(
         id=f"HIS-{uuid.uuid4()}",
         ticket_id=ticket.id,
@@ -128,18 +219,47 @@ def create_user_ticket(
         updated_by=user_id,
     ))
 
-    # Dispatch ngay: NEW → ASSIGNED
+    # ── Phân công theo mode ───────────────────────────────
+    assigned_tech = None
+    if mode == 2:
+        assigned_tech = find_best_technician(db, team.id)
+
     ticket.status = "ASSIGNED"
+    if assigned_tech is not None:
+        ticket.assigned_to = assigned_tech.id
+        note = (
+            f"Hệ thống tự động gán về Team {team.name}, "
+            f"KTV {assigned_tech.name} (workload thấp nhất)."
+        )
+    else:
+        note = f"Hệ thống tự động gán về Team {team.name}."
+
     db.add(TicketHistory(
         id=f"HIS-{uuid.uuid4()}",
         ticket_id=ticket.id,
         from_status="NEW",
         to_status="ASSIGNED",
-        note=f"Hệ thống tự động gán về Team {team.name}.",
+        note=note,
         updated_by=user_id,
     ))
 
     db.commit()
+
+    # ── Mode 2: AI boost priority ngầm (không block user) ──
+    if mode == 2 and kw_prio != "CRITICAL":
+        threading.Thread(
+            target=_async_ai_priority_update,
+            args=(
+                ticket.id, title, description,
+                {
+                    "room_code": room_code,
+                    "building_id": building.id,
+                    "category": category,
+                },
+                kw_prio,
+            ),
+            daemon=True,
+        ).start()
 
     return {
         "success": True,
@@ -152,6 +272,11 @@ def create_user_ticket(
             "room": {"id": room.id, "code": room.code, "name": room.name},
             "building": {"id": building.id, "code": building.code, "name": building.name},
             "assigned_team": {"id": team.id, "code": team.code, "name": team.name},
+            "assigned_tech": (
+                {"id": assigned_tech.id, "name": assigned_tech.name}
+                if assigned_tech else None
+            ),
+            "dispatch_mode": mode,
         },
     }
 
@@ -193,7 +318,11 @@ def get_user_ticket_detail(db, user_id, ticket_id):
             "id": ticket.id,
             "title": ticket.title,
             "priority": ticket.priority,
+            "effective_priority": get_effective_priority(ticket),
             "status": ticket.status,
+            "rating": ticket.rating,
+            "rating_comment": ticket.rating_comment,
+            "verified_by": ticket.verified_by,
         },
         "ticket_info": {
             "reporter": {"id": reporter.id, "name": reporter.name, "email": reporter.email} if reporter else None,
@@ -222,11 +351,10 @@ def get_user_ticket_detail(db, user_id, ticket_id):
 # =============================================================
 # ACCEPT / REJECT
 # =============================================================
-
-def accept_user_ticket(db, user_id, ticket_id, rating=None, rating_comment=None):
+def rate_user_ticket(db, user_id, ticket_id, rating, rating_comment=None):
     """
-    User accept ticket ở WAITING_CONFIRM → CLOSED.
-    Có thể kèm rating (1-5) + comment tuỳ chọn.
+    User đánh giá chất lượng. KHÔNG đổi status ticket.
+    Chỉ cho đánh giá khi KTV đã xử lý xong (WAITING_CONFIRM hoặc CLOSED).
     """
     ticket = (
         db.query(Ticket)
@@ -236,12 +364,11 @@ def accept_user_ticket(db, user_id, ticket_id, rating=None, rating_comment=None)
     if ticket is None:
         return None
 
-    if ticket.status != "WAITING_CONFIRM":
-        return {"success": False, "error": "TICKET_NOT_WAITING_CONFIRM"}
+    if ticket.status not in ("WAITING_CONFIRM", "CLOSED"):
+        return {"success": False, "error": "TICKET_NOT_RATEABLE"}
 
-    if rating is not None:
-        if not isinstance(rating, int) or rating < 1 or rating > 5:
-            return {"success": False, "error": "INVALID_RATING"}
+    if not isinstance(rating, int) or rating < 1 or rating > 5:
+        return {"success": False, "error": "INVALID_RATING"}
 
     if rating_comment is not None:
         if not isinstance(rating_comment, str):
@@ -249,26 +376,17 @@ def accept_user_ticket(db, user_id, ticket_id, rating=None, rating_comment=None)
         if len(rating_comment) > 500:
             return {"success": False, "error": "COMMENT_TOO_LONG"}
 
-    old = ticket.status
-    ticket.status = "CLOSED"
-
-    if rating is not None:
-        ticket.rating = rating
-        ticket.rating_comment = (rating_comment or "").strip() or None
-        ticket.rated_at = datetime.utcnow()
-
-    note = "Người báo xác nhận sự cố đã xử lý xong."
-    if rating is not None:
-        note += f" Đánh giá: {rating}/5 sao."
-        if ticket.rating_comment:
-            note += f" Nhận xét: {ticket.rating_comment}"
+    ticket.rating = rating
+    ticket.rating_comment = (rating_comment or "").strip() or None
+    ticket.rated_at = datetime.utcnow()
 
     db.add(TicketHistory(
         id=f"HIS-{uuid.uuid4()}",
         ticket_id=ticket.id,
-        from_status=old,
-        to_status="CLOSED",
-        note=note,
+        from_status=ticket.status,
+        to_status=ticket.status,
+        note=f"Người báo đánh giá {rating}/5 sao."
+             + (f" Nhận xét: {ticket.rating_comment}" if ticket.rating_comment else ""),
         updated_by=user_id,
     ))
     db.commit()
@@ -277,52 +395,7 @@ def accept_user_ticket(db, user_id, ticket_id, rating=None, rating_comment=None)
         "success": True,
         "data": {
             "ticket_id": ticket.id,
-            "old_status": old,
-            "new_status": ticket.status,
             "rating": ticket.rating,
-        },
-    }
-
-
-def reject_user_ticket(db, user_id, ticket_id, reason):
-    """
-    User reject: WAITING_CONFIRM → RE_PROCESS, priority lên HIGH.
-    """
-    ticket = (
-        db.query(Ticket)
-        .filter(Ticket.id == ticket_id, Ticket.reporter_id == user_id)
-        .first()
-    )
-    if ticket is None:
-        return None
-
-    if ticket.status != "WAITING_CONFIRM":
-        return {"success": False, "error": "TICKET_NOT_WAITING_CONFIRM"}
-
-    if not reason or not reason.strip():
-        return {"success": False, "error": "REASON_REQUIRED"}
-
-    old = ticket.status
-    ticket.status = "RE_PROCESS"
-    ticket.priority = "HIGH"
-    ticket.assigned_to = None
-
-    db.add(TicketHistory(
-        id=f"HIS-{uuid.uuid4()}",
-        ticket_id=ticket.id,
-        from_status=old,
-        to_status="RE_PROCESS",
-        note=f"Người báo từ chối nghiệm thu. Lý do: {reason.strip()}",
-        updated_by=user_id,
-    ))
-    db.commit()
-
-    return {
-        "success": True,
-        "data": {
-            "ticket_id": ticket.id,
-            "old_status": old,
-            "new_status": ticket.status,
-            "new_priority": ticket.priority,
+            "rating_comment": ticket.rating_comment,
         },
     }

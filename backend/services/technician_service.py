@@ -5,6 +5,7 @@ from models.ticket_history import TicketHistory
 from models.room import Room
 from models.building import Building
 from datetime import datetime
+from services.system_setting_service import get_dispatch_mode
 import uuid
 
 def get_technician_info(db, technician_id):
@@ -513,19 +514,32 @@ def resolve_technician_ticket(
         }
 
     old_status = ticket.status
+    mode = get_dispatch_mode(db)          # cần import
 
-    ticket.status = "WAITING_CONFIRM"
-
-    note = (
+    base_note = (
         f"Nguyên nhân: {cause.strip()}\n"
         f"Giải pháp: {solution.strip()}"
     )
+
+    if mode == 1:
+        # Manual → chờ Team Lead nghiệm thu
+        ticket.status = "WAITING_CONFIRM"
+        new_status = "WAITING_CONFIRM"
+        note = base_note
+        auto_closed = False
+    else:
+        # Auto → đóng luôn, không nghiệm thu
+        ticket.status = "CLOSED"
+        ticket.verified_at = datetime.utcnow()
+        new_status = "CLOSED"
+        note = base_note + "\n(Hệ thống tự động nghiệm thu — Mode Auto)"
+        auto_closed = True
 
     history = TicketHistory(
         id=f"HIS-{uuid.uuid4()}",
         ticket_id=ticket.id,
         from_status=old_status,
-        to_status="WAITING_CONFIRM",
+        to_status=new_status,
         note=note,
         updated_by=technician_id
     )
@@ -539,7 +553,9 @@ def resolve_technician_ticket(
         "old_status": old_status,
         "new_status": ticket.status,
         "cause": cause.strip(),
-        "solution": solution.strip()
+        "solution": solution.strip(),
+        "auto_closed": auto_closed,
+        "dispatch_mode": mode,
     }
 
 

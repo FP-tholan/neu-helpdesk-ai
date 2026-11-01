@@ -5,3 +5,4 @@ from models.room import Room
 from models.ticket import Ticket
 from models.ticket_history import TicketHistory
 from models.dispatch_rule import DispatchRule
+from models.system_setting import SystemSetting

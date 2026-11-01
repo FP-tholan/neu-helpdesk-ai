@@ -16,14 +16,14 @@ def seed_teams():
             Team(
                 id="T_PSA",
                 code="PSA",
-                name="Phòng Quản trị cơ sở vật chất",
-                description="Đội phụ trách cơ sở vật chất khu vực A1, A2",
+                name="Team PSA",
+                description="Đội PSA phụ trách cơ sở vật chất khu vực A1, A2",
             ),
             Team(
                 id="T_QTTB",
                 code="QTTB",
                 name="Quản trị thiết bị",
-                description="Đội phụ trách xử lý sự cố thiết bị và cơ sở vật chất",
+                description="Đội quản trị thiết bị phụ trách xử lý sự cố thiết bị và cơ sở vật chất",
             ),
             Team(
                 id="T_ADMIN",
