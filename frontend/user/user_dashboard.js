@@ -177,6 +177,45 @@ let currentUser = {
   role: 'USER'
 };
 
+// ============================================================
+// ROOMS
+// ============================================================
+
+const ROOMS_BY_BUILDING = {
+    'Tòa nhà A1': [],
+    'Tòa nhà A2': ['A2.101', 'A2.202', 'A2.304', 'A2.602'],
+    'Tòa nhà B':  ['B.102', 'B.401'],
+};
+
+function updateRoomOptions(buildingName) {
+    const roomSelect = document.getElementById('newRoom');
+    if (!roomSelect) return;
+
+    roomSelect.innerHTML = '';
+    const rooms = ROOMS_BY_BUILDING[buildingName] || [];
+
+    if (rooms.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = buildingName ? '-- Không có phòng cho tòa này --' : '-- Chọn tòa trước --';
+        roomSelect.appendChild(opt);
+        roomSelect.disabled = true;
+        return;
+    }
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = '-- Chọn phòng --';
+    roomSelect.appendChild(placeholder);
+
+    rooms.forEach(code => {
+        const opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = code;
+        roomSelect.appendChild(opt);
+    });
+    roomSelect.disabled = false;
+}
 
 // ============================================================
 // CHECK USER AUTHORIZATION
@@ -622,7 +661,16 @@ document.addEventListener(
         }
       );
     }
-
+    // ========================================================
+    // BUILDING → ROOM FILTER
+    // ========================================================
+    const newBuildingSelect = document.getElementById('newBuilding');
+    if (newBuildingSelect) {
+      newBuildingSelect.addEventListener('change', (e) => {
+        updateRoomOptions(e.target.value);
+      });
+    }
+    updateRoomOptions('');   // trạng thái ban đầu
 
     // ========================================================
     // CREATE TICKET - BACKEND API
@@ -677,13 +725,6 @@ document.addEventListener(
               .value;
 
 
-          const priority =
-            document.getElementById(
-              'newPriority'
-            )
-              .value;
-
-
           const description =
             document.getElementById(
               'newDescription'
@@ -701,7 +742,6 @@ document.addEventListener(
             !building ||
             !room ||
             !category ||
-            !priority ||
             !description
           ) {
 
@@ -712,6 +752,12 @@ document.addEventListener(
             return;
           }
 
+          // Chống double-submit: disable nút trong lúc gửi
+          const submitBtn = createForm.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Đang gửi...';
+          }
 
           try {
 
@@ -736,23 +782,11 @@ document.addEventListener(
                   body:
                     JSON.stringify({
 
-                      title:
-                        title,
-
-                      building:
-                        building,
-
-                      room:
-                        room,
-
-                      category:
-                        category,
-
-                      priority:
-                        priority.toUpperCase(),
-
-                      description:
-                        description
+                      title:       title,
+                      building:    building,
+                      room:        room,
+                      category:    category,
+                      description: description
                     })
                 }
               );
@@ -808,7 +842,6 @@ document.addEventListener(
             // ------------------------------------------------
 
             await loadDashboardData();
-
           } catch (error) {
 
             console.error(
@@ -819,6 +852,11 @@ document.addEventListener(
             alert(
               'Không thể kết nối đến server. Vui lòng kiểm tra Backend.'
             );
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Gửi yêu cầu hỗ trợ';
+            }
           }
 
         }
@@ -1474,50 +1512,50 @@ async function openTicketDetail(ticketId) {
 
 
     if (footer) {
-
-      // Xóa các nút cũ trước khi render
       footer.innerHTML = '';
 
+      const status = String(header.status || '').toLowerCase();
 
-      const status =
-        String(
-          header.status || ''
-        ).toLowerCase();
-
-
-      // ------------------------------------------------------
-      // RESOLVED
-      // ------------------------------------------------------
-      // User có 2 lựa chọn:
-      //
-      // 1. Xác nhận hoàn tất
-      //    RESOLVED -> CLOSED
-      //
-      // 2. Yêu cầu xử lý tiếp
-      //    RESOLVED -> IN_PROGRESS
-      // ------------------------------------------------------
-
+      // Mode 1 — KTV báo xong, chờ Team Lead nghiệm thu
       if (status === 'waiting_confirm') {
         footer.innerHTML = `
-          <button type="button" class="btn btn-primary" id="btnAcceptTicket">
-            Xác nhận hoàn tất
-          </button>
-          <button type="button" class="btn btn-secondary" id="btnRejectTicket">
-            Yêu cầu xử lý tiếp
+          <div style="flex:1;font-size:13px;color:#475569;">
+            ✅ Kỹ thuật viên đã báo xử lý xong. Ticket đang chờ Trưởng nhóm kỹ thuật nghiệm thu.
+          </div>
+          <button type="button" class="btn btn-primary" id="btnRateTicket">
+            Đánh giá chất lượng
           </button>
         `;
-
-        const btnAccept = document.getElementById('btnAcceptTicket');
-        if (btnAccept) {
-          btnAccept.addEventListener('click', () => acceptTicket(header.id));
-        }
-
-        const btnReject = document.getElementById('btnRejectTicket');
-        if (btnReject) {
-          btnReject.addEventListener('click', () => rejectTicket(header.id));
-        }
+        document.getElementById('btnRateTicket')
+          ?.addEventListener('click', () => openRatingModal(header.id));
       }
 
+      // CLOSED — phân biệt đóng bởi Team Lead (mode 1) vs auto (mode 2)
+      else if (status === 'closed') {
+        const closedByTeamLead = !!header.verified_by;
+        const closedMsg = closedByTeamLead
+          ? '✅ Ticket đã được Trưởng nhóm kỹ thuật nghiệm thu và đóng.'
+          : '✅ Kỹ thuật viên đã xử lý xong và ticket tự động đóng.';
+
+        if (!header.rating) {
+          footer.innerHTML = `
+            <div style="flex:1;font-size:13px;color:#475569;">
+              ${closedMsg} Bạn có thể đánh giá chất lượng.
+            </div>
+            <button type="button" class="btn btn-primary" id="btnRateTicket">
+              Đánh giá chất lượng
+            </button>
+          `;
+          document.getElementById('btnRateTicket')
+            ?.addEventListener('click', () => openRatingModal(header.id));
+        } else {
+          footer.innerHTML = `
+            <div style="flex:1;font-size:13px;color:#475569;">
+              ${closedMsg} Cảm ơn bạn đã đánh giá ${header.rating}★.
+            </div>
+          `;
+        }
+      }
     }
 
 
@@ -1623,13 +1661,12 @@ if (ratingStarsEl) {
 }
 
 
-async function submitAccept(ticketId, rating, comment) {
-  const payload = {};
-  if (rating != null) payload.rating = rating;
+async function submitRating(ticketId, rating, comment) {
+  const payload = { rating: rating };
   if (comment && comment.trim()) payload.rating_comment = comment.trim();
 
   const response = await fetch(
-    `http://127.0.0.1:5000/tickets/${ticketId}/accept`,
+    `http://127.0.0.1:5000/tickets/${ticketId}/rate`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1647,7 +1684,7 @@ async function submitAccept(ticketId, rating, comment) {
   }
 
   if (!response.ok || !result.success) {
-    alert(result.error?.message || 'Không thể xác nhận hoàn tất ticket.');
+    alert(result.error?.message || 'Không thể gửi đánh giá.');
     return false;
   }
 
@@ -1655,37 +1692,24 @@ async function submitAccept(ticketId, rating, comment) {
 }
 
 
-// ============================================================
-// ACCEPT TICKET — WAITING_CONFIRM → CLOSED
-// ============================================================
-
-async function acceptTicket(ticketId) {
-  if (!ticketId) {
-    alert('Không xác định được Ticket.');
-    return;
-  }
-  openRatingModal(ticketId);
-}
-
-
 // Nút gửi đánh giá
 if (btnSubmitRating) {
   btnSubmitRating.addEventListener('click', async () => {
-    if (_ratingTicketId == null) return;
+    if (_ratingTicketId == null || _ratingValue == null) return;
 
     const ticketId = _ratingTicketId;
-    const rating = _ratingValue;
-    const comment = ratingCommentEl ? ratingCommentEl.value : '';
+    const rating   = _ratingValue;
+    const comment  = ratingCommentEl ? ratingCommentEl.value : '';
 
     btnSubmitRating.disabled = true;
     btnSubmitRating.textContent = 'Đang gửi...';
 
-    const ok = await submitAccept(ticketId, rating, comment);
+    const ok = await submitRating(ticketId, rating, comment);
 
-    btnSubmitRating.textContent = 'Gửi đánh giá & hoàn tất';
+    btnSubmitRating.textContent = 'Gửi đánh giá';
 
     if (ok) {
-      alert(`Đã xác nhận hoàn tất và gửi đánh giá ${rating}★ cho ticket #${ticketId}.`);
+      alert(`Cảm ơn bạn đã đánh giá ${rating}★ cho ticket #${ticketId}.`);
       closeRatingModal();
       await loadDashboardData();
       await openTicketDetail(ticketId);
@@ -1695,26 +1719,9 @@ if (btnSubmitRating) {
   });
 }
 
-
-// Nút bỏ qua đánh giá
+// (Đã bỏ nút "Bỏ qua đánh giá" — đóng modal bằng nút X là đủ)
 if (btnSkipRating) {
-  btnSkipRating.addEventListener('click', async () => {
-    if (_ratingTicketId == null) return;
-
-    const ticketId = _ratingTicketId;
-    btnSkipRating.disabled = true;
-
-    const ok = await submitAccept(ticketId, null, null);
-
-    btnSkipRating.disabled = false;
-
-    if (ok) {
-      alert(`Đã xác nhận hoàn tất ticket #${ticketId} (không đánh giá).`);
-      closeRatingModal();
-      await loadDashboardData();
-      await openTicketDetail(ticketId);
-    }
-  });
+  btnSkipRating.style.display = 'none';
 }
 
 

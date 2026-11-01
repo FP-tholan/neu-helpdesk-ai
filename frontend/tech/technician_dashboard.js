@@ -1609,9 +1609,20 @@ async function resolveTicket() {
     }
 
 
-    alert(
-      `Đã hoàn tất xử lý ticket #${currentActiveTicketId}! Trạng thái chuyển sang "Resolved" để chờ người dùng nghiệm thu.`
-    );
+    const autoClosed = result.data?.auto_closed === true;
+    const mode = result.data?.dispatch_mode;
+
+    if (autoClosed) {
+      alert(
+        `Đã hoàn tất xử lý ticket #${currentActiveTicketId}!\n` +
+        `Mode Auto — ticket tự động đóng. Người báo có thể đánh giá.`
+      );
+    } else {
+      alert(
+        `Đã hoàn tất xử lý ticket #${currentActiveTicketId}!\n` +
+        `Mode Manual — ticket chuyển sang "Chờ nghiệm thu", Team Lead sẽ nghiệm thu.`
+      );
+    }
 
 
     // Xóa nội dung form

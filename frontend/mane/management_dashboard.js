@@ -13,7 +13,7 @@ let _cacheDashboard   = null;   // /management/dashboard
 let _cacheUnassigned  = [];     // /management/tickets/unassigned
 let _cacheTickets     = [];     // /management/tickets
 let _cacheTechnicians = [];     // /management/technicians
-
+let _cacheSettings    = { dispatch_mode: 1 };   // /management/settings
 
 // =============================================================
 // API HELPERS
@@ -140,9 +140,57 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('addMemberForm')
     ?.addEventListener('submit', handleAddMember);
 
+  // Settings — mode select
+  document.getElementById('dispatchModeSelect')
+    ?.addEventListener('change', (e) => {
+      const hints = {
+        '1': 'Ticket mới vào hàng đợi Team. Team Lead tự set priority, tự gán KTV. KTV resolve → chờ Team Lead nghiệm thu.',
+        '2': 'Ticket mới được AI tự đặt priority. AI tắt → LOW. Hệ thống gán KTV workload thấp nhất. KTV resolve → tự đóng.',
+      };
+      const hint = document.getElementById('dispatchModeHint');
+      if (hint) hint.textContent = hints[e.target.value] || '';
+    });
+
+  document.getElementById('btnSaveDispatchMode')
+    ?.addEventListener('click', async () => {
+      const mode = parseInt(document.getElementById('dispatchModeSelect').value, 10);
+      const { status, body } = await apiSend('PUT', '/management/settings', {
+        dispatch_mode: mode,
+      });
+      if (status !== 200 || !body.success) {
+        alert(body.error || 'Không lưu được thiết lập.');
+        return;
+      }
+      alert('Đã lưu chế độ phân công.');
+      _cacheSettings.dispatch_mode = mode;
+      await refreshAll();
+    });
+
+  // Auto-refresh mỗi 60s (dữ liệu cập nhật theo thời gian)
+  setInterval(async () => {
+    if (document.hidden) return;
+    try { await refreshAll(); } catch (e) { /* ignore */ }
+  }, 60000);
+
   // Initial load
   await refreshAll();
 });
+
+
+function renderSettings() {
+  const sel  = document.getElementById('dispatchModeSelect');
+  const hint = document.getElementById('dispatchModeHint');
+  if (!sel) return;
+
+  const mode = String(_cacheSettings.dispatch_mode || 1);
+  sel.value = mode;
+
+  const hints = {
+    '1': 'Ticket mới vào hàng đợi Team. Team Lead tự set priority, tự gán KTV. KTV resolve → chờ Team Lead nghiệm thu.',
+    '2': 'Ticket mới được AI tự đặt priority (LOW/MEDIUM/HIGH/CRITICAL). AI tắt → LOW. Hệ thống gán KTV workload thấp nhất. KTV resolve → tự đóng, không nghiệm thu.',
+  };
+  if (hint) hint.textContent = hints[mode] || '';
+}
 
 
 // =============================================================
@@ -151,11 +199,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function refreshAll() {
   try {
-    const [dash, unassigned, tickets, techs] = await Promise.all([
+    const [dash, unassigned, tickets, techs, settings] = await Promise.all([
       apiGet('/management/dashboard'),
       apiGet('/management/tickets/unassigned'),
       apiGet('/management/tickets'),
       apiGet('/management/technicians'),
+      apiGet('/management/settings'),
     ]);
 
     if (dash.status === 401 || unassigned.status === 401) {
@@ -167,8 +216,10 @@ async function refreshAll() {
     _cacheUnassigned  = unassigned.body.data || [];
     _cacheTickets     = tickets.body.data || [];
     _cacheTechnicians = techs.body.data || [];
+    _cacheSettings    = settings.body.data || { dispatch_mode: 1 };
 
     renderManagementDashboard();
+    renderSettings();
   } catch (e) {
     console.error('refreshAll error:', e);
     alert('Không tải được dữ liệu. Kiểm tra Backend.');
@@ -392,7 +443,6 @@ function renderTeamTicketsTable() {
   if (!tbody) return;
 
   tbody.innerHTML = '';
-
   if (_cacheTickets.length === 0) {
     tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:#94a3b8;">Không có ticket nào thuộc Team này.</td></tr>`;
     return;
@@ -404,26 +454,97 @@ function renderTeamTicketsTable() {
       : '—';
 
     const techName = ticket.assigned_to ? ticket.assigned_to.name : 'Chưa phân công';
+    const status = (ticket.status || '').toLowerCase();
+    const effPrio = ticket.effective_priority || ticket.priority;
+
+    let actions = '';
+
+    if (status === 'waiting_confirm') {
+      actions = `
+        <button class="btn btn-secondary"
+                style="padding:4px 10px;font-size:11.5px;background:#dcfce7;color:#166534;border:1px solid #86efac;"
+                onclick="verifyTicket('${ticket.id}')">✓ Nghiệm thu</button>
+        <button class="btn btn-secondary"
+                style="padding:4px 10px;font-size:11.5px;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;margin-left:4px;"
+                onclick="rejectTicket('${ticket.id}')">✗ Từ chối</button>
+      `;
+    } else {
+      actions = `
+        <button class="btn btn-secondary"
+                style="padding:4px 10px;font-size:11.5px;"
+                onclick="openAssignModal('${ticket.id}', ${ticket.assigned_to ? "'reassign'" : "'assign'"})">
+          ${ticket.assigned_to ? 'Đổi KTV' : 'Phân công'}
+        </button>
+      `;
+    }
+
+    const prioSelect = `
+      <select class="priority-select" data-id="${ticket.id}"
+              style="font-size:11.5px;padding:3px 6px;border-radius:4px;border:1px solid #cbd5e1;">
+        ${['LOW','MEDIUM','HIGH','CRITICAL'].map(p =>
+          `<option value="${p}" ${p === effPrio ? 'selected' : ''}>${p}</option>`
+        ).join('')}
+      </select>
+    `;
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><strong>#${ticket.id}</strong></td>
       <td>${ticket.title}</td>
       <td>${loc}</td>
-      <td><span class="badge" style="background:#f1f5f9;color:#334155;">${(ticket.priority || '').toUpperCase()}</span></td>
-      <td><span class="badge badge-${(ticket.status || '').toLowerCase()}">${ticket.status}</span></td>
+      <td>${prioSelect}</td>
+      <td><span class="badge badge-${status}">${ticket.status}</span></td>
       <td><strong>${techName}</strong></td>
-      <td>
-        <button class="btn btn-secondary"
-                style="padding:4px 10px;font-size:11.5px;"
-                onclick="openAssignModal('${ticket.id}', ${ticket.assigned_to ? "'reassign'" : "'assign'"})">
-          ${ticket.assigned_to ? 'Đổi KTV' : 'Phân công'}
-        </button>
-      </td>
+      <td>${actions}</td>
     `;
     tbody.appendChild(tr);
   });
+
+  tbody.querySelectorAll('.priority-select').forEach(sel => {
+    sel.addEventListener('change', async (e) => {
+      const ticketId = e.target.getAttribute('data-id');
+      const newPrio = e.target.value;
+      const { status, body } = await apiSend(
+        'PATCH', `/management/tickets/${ticketId}/priority`,
+        { priority: newPrio }
+      );
+      if (status !== 200 || !body.success) {
+        alert(body.error || 'Không đổi được priority.');
+        return;
+      }
+      await refreshAll();
+    });
+  });
 }
+
+
+// VERIFY / REJECT
+window.verifyTicket = async function(ticketId) {
+  if (!confirm(`Xác nhận nghiệm thu ticket #${ticketId}?`)) return;
+  const { status, body } = await apiSend('POST', `/management/tickets/${ticketId}/verify`);
+  if (status !== 200 || !body.success) {
+    alert(body.error || 'Không nghiệm thu được.');
+    return;
+  }
+  alert(`Đã nghiệm thu ticket #${ticketId}.`);
+  await refreshAll();
+};
+
+window.rejectTicket = async function(ticketId) {
+  const reason = prompt(`Lý do từ chối ticket #${ticketId} (bắt buộc):`);
+  if (reason === null) return;
+  if (!reason.trim()) { alert('Vui lòng nhập lý do.'); return; }
+  const { status, body } = await apiSend(
+    'POST', `/management/tickets/${ticketId}/reject`,
+    { reason: reason.trim() }
+  );
+  if (status !== 200 || !body.success) {
+    alert(body.error || 'Không từ chối được.');
+    return;
+  }
+  alert(`Đã từ chối ticket #${ticketId}. Ticket quay lại hàng đợi KTV.`);
+  await refreshAll();
+};
 
 
 // =============================================================
